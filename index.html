@@ -287,7 +287,7 @@
                 <button type="submit" class="btn">Zaloguj się</button>
             </form>
 
-            <!-- FORMULARZ REJESTRACJI (16 RANG) -->
+            <!-- FORMULARZ REJESTRACJI Z DOKŁADNIE TWOIMI RANGAMI -->
             <form id="registerForm" class="hidden" onsubmit="handleRegister(event)">
                 <div class="form-group">
                     <label>Nick (z Discorda / RP)</label>
@@ -298,30 +298,23 @@
                     <input type="text" id="regDiscordId" class="form-control" placeholder="18-cyfrowe ID" required>
                 </div>
                 <div class="form-group">
-                    <label>Ranga w Administracji (16 Rang)</label>
+                    <label>Ranga / Stanowisko</label>
                     <select id="regRole" class="form-control" required>
-                        <optgroup label="Zarząd & Główna Administracja">
-                            <option value="Właściciel Projektu">Właściciel Projektu</option>
-                            <option value="Współwłaściciel">Współwłaściciel</option>
-                            <option value="Head Developer">Head Developer</option>
-                            <option value="Developer">Developer</option>
-                            <option value="Head Admin (HA)">Head Admin (HA)</option>
-                            <option value="Vice Head Admin (VHA)">Vice Head Admin (VHA)</option>
-                        </optgroup>
-                        <optgroup label="Główni Opiekunowie">
-                            <option value="Opiekun Administracji">Opiekun Administracji</option>
-                            <option value="Opiekun Frakcji">Opiekun Frakcji</option>
-                            <option value="Opiekun Biznesów">Opiekun Biznesów</option>
-                        </optgroup>
-                        <optgroup label="Zespół Administracyjny">
-                            <option value="Senior Admin (SA)">Senior Admin (SA)</option>
-                            <option value="Administrator (A)">Administrator (A)</option>
-                            <option value="Junior Admin (JA)">Junior Admin (JA)</option>
-                            <option value="Moderator (Mod)">Moderator (Mod)</option>
-                            <option value="Junior Moderator (JMod)">Junior Moderator (JMod)</option>
-                            <option value="Helper (H)">Helper (H)</option>
-                            <option value="Trial Helper (TH)">Trial Helper (TH)</option>
-                        </optgroup>
+                        <option value="👑 | Właściciel">👑 | Właściciel</option>
+                        <option value="👑 | Współwłaściciel">👑 | Współwłaściciel</option>
+                        <option value="👥 | Zarząd Serwera">👥 | Zarząd Serwera</option>
+                        <option value="🛠️ | Head Administrator">🛠️ | Head Administrator</option>
+                        <option value="🛠️ | St. Administrator">🛠️ | St. Administrator</option>
+                        <option value="🛠️ | Administrator">🛠️ | Administrator</option>
+                        <option value="🛠️ | Jr. Administrator">🛠️ | Jr. Administrator</option>
+                        <option value="🔨 | Head Moderator">🔨 | Head Moderator</option>
+                        <option value="🔨 | St. Moderator">🔨 | St. Moderator</option>
+                        <option value="🔨 | Moderator">🔨 | Moderator</option>
+                        <option value="🔨 | Jr. Moderator">🔨 | Jr. Moderator</option>
+                        <option value="👀 | Head Support">👀 | Head Support</option>
+                        <option value="👀 | St. Support">👀 | St. Support</option>
+                        <option value="👀 | Support">👀 | Support</option>
+                        <option value="👀 | Jr. Support">👀 | Jr. Support</option>
                     </select>
                 </div>
                 <div class="form-group">
