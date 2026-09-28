@@ -1,657 +1,763 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jeżowe Roleplay [V2] - Panel Administracyjny</title>
-  <!-- Tailwind CSS & FontAwesome Icons -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    body { background-color: #0b0c10; color: #c5c6c7; font-family: 'Segoe UI', Roboto, sans-serif; }
-    .glass-card { background: rgba(31, 40, 51, 0.85); backdrop-filter: blur(10px); border: 1px solid rgba(69, 162, 158, 0.3); }
-    .btn-primary { background-color: #45a29e; color: #0b0c10; font-weight: bold; transition: all 0.2s; }
-    .btn-primary:hover { background-color: #66fcf1; box-shadow: 0 0 12px rgba(102, 252, 241, 0.4); }
-    .input-dark { background-color: #0b0c10; border: 1px solid #1f2833; color: #fff; }
-    .input-dark:focus { border-color: #66fcf1; outline: none; }
-  </style>
-</head>
-<body class="min-h-screen flex flex-col justify-between">
-
-  <!-- TOP HEADER / NAVBAR -->
-  <header class="glass-card sticky top-0 z-50 px-6 py-4 flex flex-wrap justify-between items-center border-b border-[#45a29e]/30">
-    <div class="flex items-center gap-4">
-      <img id="header-logo" src="https://via.placeholder.com/50/45a29e/0b0c10?text=JRP" alt="Logo" class="w-12 h-12 rounded-full border-2 border-[#66fcf1] object-cover">
-      <div>
-        <h1 class="text-xl font-bold text-[#66fcf1] tracking-wider">Jeżowe Roleplay [V2]</h1>
-        <p class="text-xs text-gray-400">Oficjalny Panel Administracji</p>
-      </div>
-    </div>
-
-    <!-- LOGGED USER PROFILE & LOGOUT -->
-    <div id="user-profile-header" class="hidden flex items-center gap-4 bg-[#0b0c10] px-4 py-2 rounded-lg border border-gray-800">
-      <div class="text-right">
-        <div id="logged-username" class="font-bold text-white text-sm">Użytkownik</div>
-        <div id="logged-user-role" class="text-xs text-[#66fcf1] font-semibold">Ranga</div>
-      </div>
-      <button onclick="logout()" class="bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white px-3 py-1.5 rounded-md text-xs font-bold transition">
-        <i class="fa-solid fa-right-from-bracket mr-1"></i> Wyloguj się
-      </button>
-    </div>
-  </header>
-
-  <!-- MAIN CONTAINER -->
-  <main class="container mx-auto p-4 md:p-6 flex-grow">
-
-    <!-- EKRAN DLA NIEZALOGOWANYCH (LOGOWANIE / REJESTRACJA) -->
-    <div id="auth-screen" class="max-w-md mx-auto my-12">
-      <div class="glass-card p-8 rounded-xl text-center shadow-2xl">
-        <img id="auth-logo" src="https://via.placeholder.com/100/45a29e/0b0c10?text=JRP" class="w-24 h-24 mx-auto rounded-full border-4 border-[#66fcf1] mb-4 object-cover">
-        <h2 class="text-2xl font-bold text-[#66fcf1] mb-1">Jeżowe Roleplay [V2]</h2>
-        <p class="text-gray-400 text-sm mb-6">Witaj w panelu zarządzania serwerem</p>
-
-        <!-- PRZYCISKI WYBORU -->
-        <div id="auth-buttons" class="space-y-3">
-          <button onclick="showAuthForm('login')" class="w-full btn-primary py-3 rounded-lg flex items-center justify-center gap-2 text-base">
-            <i class="fa-solid fa-right-to-bracket"></i> Mam już konto
-          </button>
-          <button onclick="showAuthForm('register')" class="w-full bg-[#1f2833] hover:bg-[#2c3a47] text-white border border-[#45a29e]/50 py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition text-base">
-            <i class="fa-solid fa-user-plus text-[#66fcf1]"></i> Nie mam konta
-          </button>
-        </div>
-
-        <!-- FORMULARZ LOGOWANIA -->
-        <form id="login-form" onsubmit="handleLogin(event)" class="hidden space-y-4 text-left mt-4">
-          <h3 class="text-lg font-bold text-white border-b border-gray-700 pb-2">Logowanie</h3>
-          <div>
-            <label class="text-xs text-gray-400">Nazwa użytkownika</label>
-            <input type="text" id="login-username" required class="w-full p-2.5 rounded-lg input-dark mt-1">
-          </div>
-          <div>
-            <label class="text-xs text-gray-400">Hasło</label>
-            <input type="password" id="login-password" required class="w-full p-2.5 rounded-lg input-dark mt-1">
-          </div>
-          <button type="submit" class="w-full btn-primary py-2.5 rounded-lg font-bold">Zaloguj się</button>
-          <button type="button" onclick="showAuthForm('menu')" class="w-full text-xs text-gray-400 hover:text-white text-center block pt-2">← Powrót do wyboru</button>
-        </form>
-
-        <!-- FORMULARZ REJESTRACJI -->
-        <form id="register-form" onsubmit="handleRegister(event)" class="hidden space-y-4 text-left mt-4">
-          <h3 class="text-lg font-bold text-white border-b border-gray-700 pb-2">Rejestracja</h3>
-          <div>
-            <label class="text-xs text-gray-400">Nazwa użytkownika / Nick RP</label>
-            <input type="text" id="reg-username" required class="w-full p-2.5 rounded-lg input-dark mt-1">
-          </div>
-          <div>
-            <label class="text-xs text-gray-400">Hasło</label>
-            <input type="password" id="reg-password" required class="w-full p-2.5 rounded-lg input-dark mt-1">
-          </div>
-          <div>
-            <label class="text-xs text-gray-400">Wybierz rangę na serwerze</label>
-            <select id="reg-role" required class="w-full p-2.5 rounded-lg input-dark mt-1 text-sm"></select>
-          </div>
-          <button type="submit" class="w-full btn-primary py-2.5 rounded-lg font-bold">Utwórz konto</button>
-          <button type="button" onclick="showAuthForm('menu')" class="w-full text-xs text-gray-400 hover:text-white text-center block pt-2">← Powrót do wyboru</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- MAIN DASHBOARD PANEL (ZALOGOWANI) -->
-    <div id="dashboard-screen" class="hidden space-y-6">
-
-      <!-- NAWIGACJA ZAKŁADEK -->
-      <nav class="flex flex-wrap gap-2 border-b border-gray-800 pb-4">
-        <button onclick="switchTab('bans')" id="tab-bans" class="tab-btn bg-[#1f2833] text-[#66fcf1] border border-[#45a29e] px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2">
-          <i class="fa-solid fa-gavel"></i> Bany
-        </button>
-        <button onclick="switchTab('staff')" id="tab-staff" class="tab-btn bg-[#0b0c10] text-gray-400 hover:text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2">
-          <i class="fa-solid fa-users"></i> Skład Administracji
-        </button>
-        <button onclick="switchTab('user-bl')" id="tab-user-bl" class="tab-btn bg-[#0b0c10] text-gray-400 hover:text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2">
-          <i class="fa-solid fa-user-slash"></i> Blacklisty Użytkowników
-        </button>
-        <button onclick="switchTab('server-bl')" id="tab-server-bl" class="tab-btn bg-[#0b0c10] text-gray-400 hover:text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2">
-          <i class="fa-solid fa-server"></i> Blacklisty Serwerów
-        </button>
-        <button onclick="switchTab('request')" id="tab-request" class="tab-btn bg-[#0b0c10] text-gray-400 hover:text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2">
-          <i class="fa-solid fa-paper-plane"></i> Zgłoś Wniosek
-        </button>
-        <button onclick="switchTab('pending')" id="tab-pending" class="tab-btn bg-[#0b0c10] text-gray-400 hover:text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 relative">
-          <i class="fa-solid fa-clock"></i> Oczekujące Wnioski
-          <span id="pending-badge" class="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">0</span>
-        </button>
-        <button onclick="switchTab('owner')" id="tab-owner" class="tab-btn bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 ml-auto">
-          <i class="fa-solid fa-crown"></i> Panel Właściciela
-        </button>
-      </nav>
-
-      <!-- SEKCJA: BANY -->
-      <section id="sec-bans" class="space-y-4">
-        <div class="flex justify-between items-center">
-          <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-gavel text-[#66fcf1] mr-2"></i>Lista Banów</h3>
-          <button onclick="openModal('ban-modal')" class="btn-primary px-3 py-1.5 rounded-lg text-xs font-bold">+ Dodaj Ban</button>
-        </div>
-        <div class="glass-card rounded-xl overflow-x-auto">
-          <table class="w-full text-left text-sm">
-            <thead class="bg-[#0b0c10] text-xs text-gray-400 uppercase">
-              <tr>
-                <th class="p-3">Gracz / Discord ID</th>
-                <th class="p-3">Powód</th>
-                <th class="p-3">Nadający</th>
-                <th class="p-3">Data</th>
-              </tr>
-            </thead>
-            <tbody id="bans-list-table" class="divide-y divide-gray-800"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- SEKCJA: SKŁAD ADMINISTRACJI -->
-      <section id="sec-staff" class="hidden space-y-4">
-        <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-users text-[#66fcf1] mr-2"></i>Członkowie Administracji Jeżowe RP</h3>
-        <div id="staff-cards-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
-      </section>
-
-      <!-- SEKCJA: BLACKLISTY UŻYTKOWNIKÓW -->
-      <section id="sec-user-bl" class="hidden space-y-4">
-        <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-user-slash text-[#66fcf1] mr-2"></i>Zatwierdzone Blacklisty Użytkowników</h3>
-        <div id="user-bl-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-      </section>
-
-      <!-- SEKCJA: BLACKLISTY SERWERÓW -->
-      <section id="sec-server-bl" class="hidden space-y-4">
-        <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-server text-[#66fcf1] mr-2"></i>Zatwierdzone Blacklisty Serwerów</h3>
-        <div id="server-bl-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-      </section>
-
-      <!-- SEKCJA: ZGŁOŚ WNIOSEK -->
-      <section id="sec-request" class="hidden max-w-xl mx-auto space-y-4">
-        <div class="glass-card p-6 rounded-xl space-y-4">
-          <h3 class="text-lg font-bold text-[#66fcf1] border-b border-gray-700 pb-2"><i class="fa-solid fa-paper-plane mr-2"></i>Zgłoszenie Wniosku o Blacklistę</h3>
-          <p class="text-xs text-gray-400">Każda ranga administracyjna może złożyć wniosek. Wniosek trafi do zweryfikowania przez Zarząd / Właściciela.</p>
-          
-          <form onsubmit="handleRequestSubmit(event)" class="space-y-3">
-            <div>
-              <label class="text-xs text-gray-400">Typ Blacklisty</label>
-              <select id="req-type" onchange="toggleReqTypeFields()" class="w-full p-2.5 rounded-lg input-dark mt-1 text-sm">
-                <option value="user">Użytkownik</option>
-                <option value="server">Serwer</option>
-              </select>
-            </div>
-
-            <!-- Pola dla Użytkownika -->
-            <div id="req-user-fields" class="space-y-3">
-              <div>
-                <label class="text-xs text-gray-400">Nick / Discord ID Użytkownika</label>
-                <input type="text" id="req-user-target" placeholder="np. Jan#1234 / 12345678" class="w-full p-2.5 rounded-lg input-dark mt-1">
-              </div>
-            </div>
-
-            <!-- Pola dla Serwera -->
-            <div id="req-server-fields" class="hidden space-y-3">
-              <div>
-                <label class="text-xs text-gray-400">Nazwa Serwera</label>
-                <input type="text" id="req-server-name" placeholder="np. Super RP" class="w-full p-2.5 rounded-lg input-dark mt-1">
-              </div>
-              <div class="grid grid-cols-2 gap-2">
-                <div>
-                  <label class="text-xs text-gray-400">ID Serwera</label>
-                  <input type="text" id="req-server-id" placeholder="123456789" class="w-full p-2.5 rounded-lg input-dark mt-1">
-                </div>
-                <div>
-                  <label class="text-xs text-gray-400">ID Właściciela Serwera</label>
-                  <input type="text" id="req-server-owner-id" placeholder="987654321" class="w-full p-2.5 rounded-lg input-dark mt-1">
-                </div>
-              </div>
-              <div>
-                <label class="text-xs text-gray-400">Link do Serwera (Zaproszenie)</label>
-                <input type="url" id="req-server-link" placeholder="https://discord.gg/..." class="w-full p-2.5 rounded-lg input-dark mt-1">
-              </div>
-            </div>
-
-            <div>
-              <label class="text-xs text-gray-400">Powód Blacklisty</label>
-              <textarea id="req-reason" required rows="3" placeholder="Opisz powód..." class="w-full p-2.5 rounded-lg input-dark mt-1"></textarea>
-            </div>
-
-            <button type="submit" class="w-full btn-primary py-2.5 rounded-lg font-bold">Wyślij wniosek do rozpatrzenia</button>
-          </form>
-        </div>
-      </section>
-
-      <!-- SEKCJA: OCZEKUJĄCE WNIOSKI -->
-      <section id="sec-pending" class="hidden space-y-4">
-        <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-clock text-[#66fcf1] mr-2"></i>Oczekujące Wnioski na Rozpatrzenie</h3>
-        <div id="pending-requests-list" class="space-y-3"></div>
-      </section>
-
-      <!-- SEKCJA: PANEL WŁAŚCICIELA -->
-      <section id="sec-owner" class="hidden space-y-6">
-        <div class="glass-card p-6 rounded-xl border border-amber-500/30 space-y-6">
-          <h3 class="text-xl font-bold text-amber-400 flex items-center gap-2">
-            <i class="fa-solid fa-crown"></i> Zarządzanie Ustawieniami Panelu (Właściciel)
-          </h3>
-
-          <!-- DODAWANIE BLACKLISTY BEZPOŚREDNIO -->
-          <div class="bg-[#0b0c10] p-4 rounded-lg border border-gray-800 space-y-4">
-            <h4 class="font-bold text-white text-sm">Dodaj Blacklistę Bezpośrednio (Bez Wniosku)</h4>
-            <form onsubmit="handleDirectBlacklist(event)" class="space-y-3">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <input type="text" id="dir-target" required placeholder="Nazwa / ID / Nick" class="p-2 rounded input-dark text-sm">
-                <select id="dir-type" class="p-2 rounded input-dark text-sm">
-                  <option value="user">Blacklista Użytkownika</option>
-                  <option value="server">Blacklista Serwera</option>
-                </select>
-              </div>
-              <input type="text" id="dir-reason" required placeholder="Powód Blacklisty" class="w-full p-2 rounded input-dark text-sm">
-              <button type="submit" class="bg-amber-500 hover:bg-amber-400 text-black font-bold px-4 py-2 rounded text-xs">Dodaj natychmiastowo</button>
-            </form>
-          </div>
-
-          <!-- INTEGRACJA DISCORD WEBHOOK -->
-          <div class="bg-[#0b0c10] p-4 rounded-lg border border-gray-800 space-y-3">
-            <h4 class="font-bold text-white text-sm"><i class="fa-brands fa-discord text-indigo-400 mr-2"></i>Discord Webhook (Powiadomienia)</h4>
-            <p class="text-xs text-gray-400">Wklej link do Webhooka z Discorda, aby wysyłać automatyczne wpisy o zaakceptowanych blacklistach!</p>
-            <div class="flex gap-2">
-              <input type="url" id="webhook-url-input" placeholder="https://discord.com/api/webhooks/..." class="flex-grow p-2 rounded input-dark text-sm">
-              <button onclick="saveWebhookUrl()" class="btn-primary px-4 py-2 rounded text-xs font-bold">Zapisz URL</button>
-            </div>
-          </div>
-
-          <!-- DOWOLNA ZMIANA LOGO SERWERA -->
-          <div class="bg-[#0b0c10] p-4 rounded-lg border border-gray-800 space-y-3">
-            <h4 class="font-bold text-white text-sm"><i class="fa-solid fa-image text-[#66fcf1] mr-2"></i>Zmiana Logo Jeżowe RP</h4>
-            <p class="text-xs text-gray-400">Podaj bezpośredni link do obrazka logo (PNG/JPG):</p>
-            <div class="flex gap-2">
-              <input type="url" id="logo-url-input" placeholder="https://i.imgur.com/..." class="flex-grow p-2 rounded input-dark text-sm">
-              <button onclick="saveServerLogo()" class="btn-primary px-4 py-2 rounded text-xs font-bold">Aktualizuj Logo</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-    </div>
-
-  </main>
-
-  <!-- FOOTER -->
-  <footer class="text-center py-4 text-xs text-gray-500 border-t border-gray-800">
-    Jeżowe Roleplay [V2] &copy; 2026. Wszelkie prawa zastrzeżone. Panel Administracyjny.
-  </footer>
-
-  <!-- MODAL: DODAWANIE BANA -->
-  <div id="ban-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-    <div class="glass-card max-w-md w-full p-6 rounded-xl space-y-4">
-      <h3 class="text-lg font-bold text-white border-b border-gray-700 pb-2">Dodaj Nowy Ban</h3>
-      <form onsubmit="handleAddBan(event)" class="space-y-3">
-        <input type="text" id="ban-target" required placeholder="Gracz / Nick RP / Discord ID" class="w-full p-2.5 rounded-lg input-dark">
-        <textarea id="ban-reason" required rows="3" placeholder="Powód bana" class="w-full p-2.5 rounded-lg input-dark"></textarea>
-        <div class="flex justify-end gap-2 pt-2">
-          <button type="button" onclick="closeModal('ban-modal')" class="px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white text-xs font-bold">Anuluj</button>
-          <button type="submit" class="btn-primary px-4 py-2 rounded-lg text-xs font-bold">Baniuj Użytkownika</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- SCRIPTING LOGIC -->
-  <script>
-    // LISTA 15 POLSKICH RANG Z TWOICH GRAFIK
-    const ROLES_LIST = [
-      '👑 | Właściciel',
-      '👑 | Współwłaściciel',
-      '👥 | Zarząd Serwera',
-      '🛠️ | Główny Administrator',
-      '🛠️ | Starszy Administrator',
-      '🛠️ | Administrator',
-      '🛠️ | Młodszy Administrator',
-      '🔨 | Główny Moderator',
-      '🔨 | Starszy Moderator',
-      '🔨 | Moderator',
-      '🔨 | Młodszy Moderator',
-      '👀 | Główny Pomocnik',
-      '👀 | Starszy Pomocnik',
-      '👀 | Pomocnik',
-      '👀 | Młodszy Pomocnik'
-    ];
-
-    // RANGI UPRAWNIONE DO AKCEPTOWANIA WNIOSKÓW BLACKLISTY
-    const HIGH_ROLES = ['👑 | Właściciel', '👑 | Współwłaściciel', '👥 | Zarząd Serwera'];
-
-    // STATE INITIALIZATION FROM LOCALSTORAGE
-    let state = {
-      users: JSON.parse(localStorage.getItem('jrp_users') || '[]'),
-      currentUser: JSON.parse(localStorage.getItem('jrp_current_user') || 'null'),
-      bans: JSON.parse(localStorage.getItem('jrp_bans') || '[]'),
-      blacklists: JSON.parse(localStorage.getItem('jrp_blacklists') || '[]'),
-      requests: JSON.parse(localStorage.getItem('jrp_requests') || '[]'),
-      webhookUrl: localStorage.getItem('jrp_webhook') || '',
-      serverLogo: localStorage.getItem('jrp_logo') || 'https://via.placeholder.com/100/45a29e/0b0c10?text=JRP'
-    };
-
-    // INICJALIZACJA STRONY
-    window.onload = function() {
-      populateRoleDropdown();
-      applyLogo();
-      if (state.currentUser) {
-        showDashboard();
-      } else {
-        showAuthForm('menu');
-      }
-    };
-
-    function applyLogo() {
-      document.getElementById('header-logo').src = state.serverLogo;
-      document.getElementById('auth-logo').src = state.serverLogo;
-      document.getElementById('logo-url-input').value = state.serverLogo !== 'https://via.placeholder.com/100/45a29e/0b0c10?text=JRP' ? state.serverLogo : '';
-      document.getElementById('webhook-url-input').value = state.webhookUrl;
-    }
-
-    function populateRoleDropdown() {
-      const select = document.getElementById('reg-role');
-      select.innerHTML = ROLES_LIST.map(role => `<option value="${role}">${role}</option>`).join('');
-    }
-
-    // EKRANY AUTHENTICATION
-    function showAuthForm(formType) {
-      document.getElementById('auth-buttons').classList.add('hidden');
-      document.getElementById('login-form').classList.add('hidden');
-      document.getElementById('register-form').classList.add('hidden');
-
-      if (formType === 'menu') {
-        document.getElementById('auth-buttons').classList.remove('hidden');
-      } else if (formType === 'login') {
-        document.getElementById('login-form').classList.remove('hidden');
-      } else if (formType === 'register') {
-        document.getElementById('register-form').classList.remove('hidden');
-      }
-    }
-
-    // REJESTRACJA
-    function handleRegister(e) {
-      e.preventDefault();
-      const username = document.getElementById('reg-username').value.trim();
-      const password = document.getElementById('reg-password').value;
-      const role = document.getElementById('reg-role').value;
-
-      if (state.users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
-        alert('Użytkownik o takiej nazwie już istnieje!');
-        return;
-      }
-
-      const newUser = { username, password, role };
-      state.users.push(newUser);
-      localStorage.setItem('jrp_users', JSON.stringify(state.users));
-
-      alert('Konto zostało utworzone! Możesz się teraz zalogować.');
-      showAuthForm('login');
-    }
-
-    // LOGOWANIE
-    function handleLogin(e) {
-      e.preventDefault();
-      const username = document.getElementById('login-username').value.trim();
-      const password = document.getElementById('login-password').value;
-
-      const user = state.users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
-
-      if (!user) {
-        alert('Nieprawidłowy login lub hasło!');
-        return;
-      }
-
-      state.currentUser = user;
-      localStorage.setItem('jrp_current_user', JSON.stringify(user));
-      showDashboard();
-    }
-
-    // WYLOGOWANIE
-    function logout() {
-      state.currentUser = null;
-      localStorage.removeItem('jrp_current_user');
-      document.getElementById('dashboard-screen').classList.add('hidden');
-      document.getElementById('user-profile-header').classList.add('hidden');
-      document.getElementById('auth-screen').classList.remove('hidden');
-      showAuthForm('menu');
-    }
-
-    // DASHBOARD DISPLAY
-    function showDashboard() {
-      document.getElementById('auth-screen').classList.add('hidden');
-      document.getElementById('dashboard-screen').classList.remove('hidden');
-      document.getElementById('user-profile-header').classList.remove('hidden');
-
-      document.getElementById('logged-username').innerText = state.currentUser.username;
-      document.getElementById('logged-user-role').innerText = state.currentUser.role;
-
-      renderAllData();
-      switchTab('bans');
-    }
-
-    // TAB SWITCHER
-    function switchTab(tab) {
-      const tabs = ['bans', 'staff', 'user-bl', 'server-bl', 'request', 'pending', 'owner'];
-      tabs.forEach(t => {
-        document.getElementById(`sec-${t}`)?.classList.add('hidden');
-        const btn = document.getElementById(`tab-${t}`);
-        if(btn && t !== 'owner') {
-          btn.className = "tab-btn bg-[#0b0c10] text-gray-400 hover:text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2";
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeżowe Roleplay — Panel Administracyjny</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f1117;
+            --bg-card: #181b24;
+            --bg-input: #202430;
+            --border-color: #2a2f3d;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --sidebar-width: 260px;
         }
-      });
 
-      document.getElementById(`sec-${tab}`).classList.remove('hidden');
-      const activeBtn = document.getElementById(`tab-${tab}`);
-      if(activeBtn && tab !== 'owner') {
-        activeBtn.className = "tab-btn bg-[#1f2833] text-[#66fcf1] border border-[#45a29e] px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2";
-      }
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-    // RENDER DATA
-    function renderAllData() {
-      // Bany Table
-      const bansTbody = document.getElementById('bans-list-table');
-      bansTbody.innerHTML = state.bans.length ? state.bans.map(b => `
-        <tr>
-          <td class="p-3 font-bold text-white">${b.target}</td>
-          <td class="p-3 text-gray-300">${b.reason}</td>
-          <td class="p-3 text-[#66fcf1]">${b.by}</td>
-          <td class="p-3 text-xs text-gray-500">${b.date}</td>
-        </tr>
-      `).join('') : `<tr><td colspan="4" class="p-4 text-center text-gray-500">Brak aktywnych banów</td></tr>`;
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-      // Staff Cards
-      const staffGrid = document.getElementById('staff-cards-grid');
-      staffGrid.innerHTML = state.users.map(u => `
-        <div class="glass-card p-4 rounded-lg flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-[#0b0c10] border border-[#66fcf1] flex items-center justify-center font-bold text-[#66fcf1]">
-            ${u.username.substring(0, 2).toUpperCase()}
-          </div>
-          <div>
-            <div class="font-bold text-white">${u.username}</div>
-            <div class="text-xs text-[#66fcf1] font-semibold">${u.role}</div>
-          </div>
+        /* LOGGING / AUTH SCREEN */
+        .auth-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 17, 23, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 0.75rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .auth-tab.active {
+            color: var(--accent);
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: #fff;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 8px;
+            background: var(--accent);
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+        }
+
+        /* MAIN LAYOUT */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-card);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand {
+            padding: 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 1rem 0;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .nav-item {
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--accent);
+            border-left: 3px solid var(--accent);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .topbar {
+            height: 70px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .content-body {
+            padding: 2rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .badge {
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-danger { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .badge-success { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .badge-warning { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th { color: var(--text-muted); font-weight: 600; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <!-- AUTHENTICATION MODAL -->
+    <div id="authModal" class="auth-container">
+        <div class="auth-box">
+            <div class="auth-header">
+                <h2>Jeżowe RP</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Panel Zarządzania Administracją</p>
+            </div>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthMode('login')">Logowanie</button>
+                <button class="auth-tab" onclick="switchAuthMode('register')">Rejestracja</button>
+            </div>
+
+            <!-- FORMULARZ LOGOWANIA -->
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Nick z Serwera / Discord</label>
+                    <input type="text" id="loginNick" class="form-control" placeholder="np. Janek_PL" required>
+                </div>
+                <div class="form-group">
+                    <label>Hasło</label>
+                    <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn">Zaloguj się</button>
+            </form>
+
+            <!-- FORMULARZ REJESTRACJI -->
+            <form id="registerForm" class="hidden" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label>Nick (z Discorda / RP)</label>
+                    <input type="text" id="regNick" class="form-control" placeholder="Janek_PL" required>
+                </div>
+                <div class="form-group">
+                    <label>ID Discord (np. 3451239871239812)</label>
+                    <input type="text" id="regDiscordId" class="form-control" placeholder="18-cyfrowe ID" required>
+                </div>
+                <div class="form-group">
+                    <label>Ranga / Stanowisko</label>
+                    <select id="regRole" class="form-control">
+                        <option value="Trial Admin">Trial Admin</option>
+                        <option value="Administrator">Administrator</option>
+                        <option value="Senior Admin">Senior Admin</option>
+                        <option value="Zarząd / Właściciel">Zarząd / Właściciel</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Hasło do Konta</label>
+                    <input type="password" id="regPassword" class="form-control" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn">Stwórz Konto Admina</button>
+            </form>
         </div>
-      `).join('');
+    </div>
 
-      // Blacklisty Użytkowników
-      const userBlGrid = document.getElementById('user-bl-grid');
-      const userBls = state.blacklists.filter(b => b.type === 'user');
-      userBlGrid.innerHTML = userBls.length ? userBls.map(b => `
-        <div class="glass-card p-4 rounded-lg space-y-2 border-l-4 border-red-500">
-          <div class="font-bold text-red-400 text-lg">${b.target}</div>
-          <div class="text-xs text-gray-300"><b>Powód:</b> ${b.reason}</div>
-          <div class="text-[11px] text-gray-500 flex justify-between pt-2 border-t border-gray-800">
-            <span>Dodał: ${b.by}</span>
-            <span>${b.date}</span>
-          </div>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="brand">
+            <i class="fa-solid => fa-shield-halved" style="color: var(--accent);"></i>
+            Jeżowe Admin
         </div>
-      `).join('') : `<p class="text-gray-500 text-sm">Brak czarnych list użytkowników.</p>`;
+        <ul class="nav-menu">
+            <li class="nav-item active" onclick="showSection('dashboard')"><i class="fa-solid fa-chart-line"></i> Dashboard</li>
+            <li class="nav-item" onclick="showSection('logs')"><i class="fa-solid fa-list-check"></i> Logi Zdarzeń / DC</li>
+            <li class="nav-item" onclick="showSection('team')"><i class="fa-solid fa-users"></i> Skład Ekipy</li>
+            <li class="nav-item" onclick="showSection('blacklist')"><i class="fa-solid fa-ban"></i> Blacklista / Bazy Kar</li>
+            <li class="nav-item" onclick="showSection('applications')"><i class="fa-solid fa-file-signature"></i> Podania na Admina</li>
+            <li class="nav-item" onclick="showSection('tariffs')"><i class="fa-solid fa-gavel"></i> Taryfikator Kar</li>
+            <li class="nav-item" onclick="showSection('webhook')"><i class="fa-solid fa-paper-plane"></i> Generator Ogłoszeń</li>
+            <li class="nav-item" onclick="showSection('settings')"><i class="fa-solid fa-gear"></i> Ustawienia Webhooka</li>
+        </ul>
+    </div>
 
-      // Blacklisty Serwerów
-      const serverBlGrid = document.getElementById('server-bl-grid');
-      const serverBls = state.blacklists.filter(b => b.type === 'server');
-      serverBlGrid.innerHTML = serverBls.length ? serverBls.map(b => `
-        <div class="glass-card p-4 rounded-lg space-y-2 border-l-4 border-amber-500">
-          <div class="font-bold text-amber-400 text-lg">${b.serverName || b.target}</div>
-          <div class="text-xs text-gray-300"><b>Powód:</b> ${b.reason}</div>
-          ${b.serverId ? `<div class="text-xs text-gray-400">ID: ${b.serverId} \vert{} Owner ID:${b.serverOwnerId || 'Brak'}</div>` : ''}
-          ${b.serverLink ? `<a href="${b.serverLink}" target="_blank" class="text-xs text-[#66fcf1] underline block">Link do serwera</a>` : ''}
-          <div class="text-[11px] text-gray-500 flex justify-between pt-2 border-t border-gray-800">
-            <span>Dodał: ${b.by}</span>
-            <span>${b.date}</span>
-          </div>
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="topbar">
+            <h3 id="currentSectionTitle">Dashboard</h3>
+            <div class="user-profile">
+                <div class="avatar" id="userAvatar">A</div>
+                <div>
+                    <div id="userName" style="font-weight: 600;">Niezalogowany</div>
+                    <div id="userRole" style="font-size: 0.75rem; color: var(--text-muted);">Gość</div>
+                </div>
+                <button onclick="logout()" style="margin-left: 1rem; background: none; border: none; color: var(--danger); cursor: pointer;"><i class="fa-solid fa-right-from-bracket"></i></button>
+            </div>
         </div>
-      `).join('') : `<p class="text-gray-500 text-sm">Brak czarnych list serwerów.</p>`;
 
-      // Oczekujące Wnioski
-      const pendingList = document.getElementById('pending-requests-list');
-      document.getElementById('pending-badge').innerText = state.requests.length;
+        <div class="content-body">
 
-      const isHighRank = HIGH_ROLES.includes(state.currentUser?.role);
+            <!-- SEKACJA: DASHBOARD -->
+            <div id="sec-dashboard" class="section-content">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                    <div class="card">
+                        <div style="color: var(--text-muted); font-size: 0.85rem;">Członków Ekipy</div>
+                        <div style="font-size: 2rem; font-weight: 700; margin-top: 0.5rem;" id="statTeam">0</div>
+                    </div>
+                    <div class="card">
+                        <div style="color: var(--text-muted); font-size: 0.85rem;">Aktywnych Blacklist</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--danger); margin-top: 0.5rem;" id="statBL">0</div>
+                    </div>
+                    <div class="card">
+                        <div style="color: var(--text-muted); font-size: 0.85rem;">Oczekujące Podania</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--warning); margin-top: 0.5rem;" id="statApps">0</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4>Najnowsze Zdarzenia</h4>
+                    <ul id="dashLogsList" style="list-style: none; margin-top: 1rem;">
+                        <li style="color: var(--text-muted); font-size: 0.9rem;">Brak nowych zdarzeń...</li>
+                    </ul>
+                </div>
+            </div>
 
-      pendingList.innerHTML = state.requests.length ? state.requests.map((r, index) => `
-        <div class="glass-card p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-l-4 border-yellow-500">
-          <div class="space-y-1">
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-300 uppercase">${r.type === 'user' ? 'Użytkownik' : 'Serwer'}</span>
-            <div class="font-bold text-white">${r.target}</div>
-            <div class="text-xs text-gray-300">Powód: ${r.reason}</div>
-            <div class="text-[11px] text-gray-500">Zgłosił: ${r.by} (${r.byRole})</div>
-          </div>
-          <div class="flex gap-2">
-            ${isHighRank ? `
-              <button onclick="approveRequest(${index})" class="bg-green-600 hover:bg-green-500 text-white font-bold px-3 py-1.5 rounded text-xs transition">Zatwierdź</button>
-              <button onclick="rejectRequest(${index})" class="bg-red-600 hover:bg-red-500 text-white font-bold px-3 py-1.5 rounded text-xs transition">Odrzuć</button>
-            ` : `<span class="text-xs text-gray-500 italic">Oczekuje na akceptację Właściciela / Zarządu</span>`}
-          </div>
+            <!-- SEKCJA: LOGI DISCORD / SERWER -->
+            <div id="sec-logs" class="section-content hidden">
+                <div class="card">
+                    <h4>Rejestr Zdarzeń i Aktywności Discord</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Czas</th>
+                                <th>Typ zdarzenia</th>
+                                <th>Użytkownik / Admin</th>
+                                <th>Opis Szczegółowy</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logsTableBody">
+                            <!-- Wklejane dynamicznie -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SEKCJA: SKŁAD EKIPY -->
+            <div id="sec-team" class="section-content hidden">
+                <div class="card">
+                    <h4>Zarejestrowani Administratorzy</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Administrator</th>
+                                <th>Ranga</th>
+                                <th>Discord ID</th>
+                                <th>Data Dołączenia</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teamTableBody">
+                            <!-- Zalogowani admini z bazy Firebase -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SEKCJA: BLACKLISTA -->
+            <div id="sec-blacklist" class="section-content hidden">
+                <div class="card">
+                    <h4>Dodaj Wniosek o Blacklistę</h4>
+                    <form onsubmit="addBlacklist(event)">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label>Gracz / Nick / ID Discord</label>
+                                <input type="text" id="blPlayer" class="form-control" placeholder="np. Krystian_RP (28392183921)" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Typ kary</label>
+                                <select id="blType" class="form-control">
+                                    <option value="Blacklista Frakcyjna">Blacklista Frakcyjna</option>
+                                    <option value="Blacklista Całkowita (BL)">Blacklista Całkowita (BL)</option>
+                                    <option value="Ban Permanentny">Ban Permanentny</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Powód kary oraz Link do Dowodów</label>
+                            <textarea id="blReason" class="form-control" rows="3" placeholder="Powód oraz linki do zdjęć/filmów..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn" style="width: auto;">Wyślij Wniosek do Bazy</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h4>Aktywne Blacklisty i Banie</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Gracz</th>
+                                <th>Rodzaj Kary</th>
+                                <th>Powód & Dowody</th>
+                                <th>Nadający</th>
+                                <th>Data</th>
+                            </tr>
+                        </thead>
+                        <tbody id="blTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SEKCJA: PODANIA NA ADMINA -->
+            <div id="sec-applications" class="section-content hidden">
+                <div class="card">
+                    <h4>Złóż Podanie do Ekipy</h4>
+                    <form onsubmit="submitApplication(event)">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label>Wiek</label>
+                                <input type="number" id="appAge" class="form-control" min="13" max="99" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Ilość godzin na RP / Serwerze</label>
+                                <input type="text" id="appHours" class="form-control" placeholder="np. 450h" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Dlaczego Ty? / Doświadczenie</label>
+                            <textarea id="appText" class="form-control" rows="4" placeholder="Napisz kilka zdań o sobie i swoim doświadczeniu w administracji..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn" style="width: auto;">Wyślij Podanie</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- SEKCJA: TARYFIKATOR KAR -->
+            <div id="sec-tariffs" class="section-content hidden">
+                <div class="card">
+                    <h4>Oficjalny Taryfikator Kar Jeżowe RP</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Przewinienie</th>
+                                <th>Sugerowana Kara</th>
+                                <th>Kategoria</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>RDM (Random Deathmatch)</td><td>Jail 60-120 min / Ban 1-3 dni</td><td><span class="badge badge-danger">Główne</span></td></tr>
+                            <tr><td>VDM (Vehicle Deathmatch)</td><td>Jail 30-90 min / Ban 1 dzień</td><td><span class="badge badge-danger">Główne</span></td></tr>
+                            <tr><td>FailRP / NonRP</td><td>Warn / Jail 45 min</td><td><span class="badge badge-warning">Lekkie</span></td></tr>
+                            <tr><td>MetaGaming (MG)</td><td>Warn / Jail 60 min</td><td><span class="badge badge-warning">Lekkie</span></td></tr>
+                            <tr><td>QuitRP (Ucieczka od Akcji)</td><td>Ban 3-7 dni</td><td><span class="badge badge-danger">Ciężkie</span></td></tr>
+                            <tr><td>Cheating / Hacki</td><td>Ban Permanentny + BL</td><td><span class="badge badge-danger">Krytyczne</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SEKCJA: GENERATOR OGŁOSZEŃ -->
+            <div id="sec-webhook" class="section-content hidden">
+                <div class="card">
+                    <h4>Wyślij Ogłoszenie na Discorda</h4>
+                    <form onsubmit="sendDiscordAnnouncement(event)">
+                        <div class="form-group">
+                            <label>Tytuł Ogłoszenia</label>
+                            <input type="text" id="annTitle" class="form-control" placeholder="np. Przerwa Techniczna / Nowa Aktualizacja" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Treść Wiadomości</label>
+                            <textarea id="annContent" class="form-control" rows="5" placeholder="Wpisz treść, która ma trafić na kanał Discord..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn">Wyślij na Discord (Webhook)</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- SEKCJA: USTAWIENIA WEBHOOKA -->
+            <div id="sec-settings" class="section-content hidden">
+                <div class="card">
+                    <h4>Konfiguracja Połączeń Discord</h4>
+                    <div class="form-group">
+                        <label>Discord Webhook URL (Powiadomienia o Banach i Ogłoszenia)</label>
+                        <input type="text" id="webhookUrl" class="form-control" placeholder="https://discord.com/api/webhooks/...">
+                    </div>
+                    <button onclick="saveWebhookSettings()" class="btn" style="width: auto;">Zapisz Konfigurację</button>
+                </div>
+            </div>
+
         </div>
-      `).join('') : `<p class="text-gray-500 text-sm">Brak wniosków oczekujących na weryfikację.</p>`;
-    }
+    </div>
 
-    // TOGLE POLA WNIOSKU
-    function toggleReqTypeFields() {
-      const type = document.getElementById('req-type').value;
-      if(type === 'user') {
-        document.getElementById('req-user-fields').classList.remove('hidden');
-        document.getElementById('req-server-fields').classList.add('hidden');
-      } else {
-        document.getElementById('req-user-fields').classList.add('hidden');
-        document.getElementById('req-server-fields').classList.remove('hidden');
-      }
-    }
+    <script>
+        // FIREBASE ENDPOINT CONFIG
+        const FIREBASE_DB = "https://jezowe-rp-default-rtdb.europe-west1.firebasedatabase.app/";
 
-    // DODAWANIE WNIOSKU
-    function handleRequestSubmit(e) {
-      e.preventDefault();
-      const type = document.getElementById('req-type').value;
-      let target = '';
-      let serverName = '', serverId = '', serverOwnerId = '', serverLink = '';
+        let currentUser = null;
 
-      if (type === 'user') {
-        target = document.getElementById('req-user-target').value.trim();
-      } else {
-        serverName = document.getElementById('req-server-name').value.trim();
-        serverId = document.getElementById('req-server-id').value.trim();
-        serverOwnerId = document.getElementById('req-server-owner-id').value.trim();
-        serverLink = document.getElementById('req-server-link').value.trim();
-        target = serverName;
-      }
+        // AUTH SWITCH
+        function switchAuthMode(mode) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            if (mode === 'login') {
+                document.querySelectorAll('.auth-tab')[0].classList.add('active');
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.getElementById('registerForm').classList.add('hidden');
+            } else {
+                document.querySelectorAll('.auth-tab')[1].classList.add('active');
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('registerForm').classList.remove('hidden');
+            }
+        }
 
-      const reason = document.getElementById('req-reason').value.trim();
+        // LOGOWANIE
+        async function handleLogin(e) {
+            e.preventDefault();
+            const nick = document.getElementById('loginNick').value.trim();
+            const pass = document.getElementById('loginPassword').value.trim();
 
-      const newReq = {
-        type, target, serverName, serverId, serverOwnerId, serverLink,
-        reason, by: state.currentUser.username, byRole: state.currentUser.role,
-        date: new Date().toLocaleString('pl-PL')
-      };
+            try {
+                const res = await fetch(`${FIREBASE_DB}/users.json`);
+                const data = await res.json();
+                
+                let found = null;
+                if(data) {
+                    Object.values(data).forEach(u => {
+                        if(u.nick.toLowerCase() === nick.toLowerCase() && u.password === pass) {
+                            found = u;
+                        }
+                    });
+                }
 
-      state.requests.push(newReq);
-      localStorage.setItem('jrp_requests', JSON.stringify(state.requests));
-      alert('Wniosek został wysłany do rozpatrzenia przez Zarząd!');
-      e.target.reset();
-      renderAllData();
-    }
+                if (found) {
+                    currentUser = found;
+                    initSession();
+                } else {
+                    alert("Błędny nick lub hasło!");
+                }
+            } catch(err) {
+                alert("Błąd połączenia z bazą!");
+            }
+        }
 
-    // AKCEPTACJA WNIOSKU
-    function approveRequest(index) {
-      const req = state.requests[index];
-      state.blacklists.push({ ...req, date: new Date().toLocaleString('pl-PL') });
-      state.requests.splice(index, 1);
+        // REJESTRACJA ADMINA
+        async function handleRegister(e) {
+            e.preventDefault();
+            const user = {
+                nick: document.getElementById('regNick').value.trim(),
+                discordId: document.getElementById('regDiscordId').value.trim(),
+                role: document.getElementById('regRole').value,
+                password: document.getElementById('regPassword').value.trim(),
+                joinedAt: new Date().toLocaleDateString('pl-PL')
+            };
 
-      localStorage.setItem('jrp_blacklists', JSON.stringify(state.blacklists));
-      localStorage.setItem('jrp_requests', JSON.stringify(state.requests));
+            try {
+                await fetch(`${FIREBASE_DB}/users.json`, {
+                    method: 'POST',
+                    body: JSON.stringify(user)
+                });
 
-      sendDiscordWebhook(`🛑 **NOWA BLACKLISTA (${req.type.toUpperCase()})**\n**Cel:** ${req.target}\n**Powód:** ${req.reason}\n**Zatwierdził:** ${state.currentUser.username}`);
-      renderAllData();
-    }
+                // Zapisz log
+                addLog('Dołączenie do Ekipy', `Nowy admin: ${user.nick} (${user.role})`);
 
-    // ODRZUCENIE WNIOSKU
-    function rejectRequest(index) {
-      state.requests.splice(index, 1);
-      localStorage.setItem('jrp_requests', JSON.stringify(state.requests));
-      renderAllData();
-    }
+                alert("Konto utworzone pomyślnie! Możesz się teraz zalogować.");
+                switchAuthMode('login');
+            } catch(err) {
+                alert("Błąd zapisu do bazy danych.");
+            }
+        }
 
-    // BEZPOŚREDNIA BLACKLISTA (WŁAŚCICIEL)
-    function handleDirectBlacklist(e) {
-      e.preventDefault();
-      const target = document.getElementById('dir-target').value.trim();
-      const type = document.getElementById('dir-type').value;
-      const reason = document.getElementById('dir-reason').value.trim();
+        function initSession() {
+            document.getElementById('authModal').classList.add('hidden');
+            document.getElementById('userName').innerText = currentUser.nick;
+            document.getElementById('userRole').innerText = currentUser.role;
+            document.getElementById('userAvatar').innerText = currentUser.nick[0].toUpperCase();
 
-      state.blacklists.push({
-        type, target, reason, by: state.currentUser.username, date: new Date().toLocaleString('pl-PL')
-      });
+            loadAllData();
+        }
 
-      localStorage.setItem('jrp_blacklists', JSON.stringify(state.blacklists));
-      sendDiscordWebhook(`⛔ **BEZPOŚREDNIA BLACKLISTA (${type.toUpperCase()})**\n**Cel:** ${target}\n**Powód:** ${reason}\n**Dodał:** ${state.currentUser.username}`);
-      e.target.reset();
-      renderAllData();
-      alert('Blacklista została bezpośrednio wpisana!');
-    }
+        function logout() {
+            location.reload();
+        }
 
-    // DODAWANIE BANA
-    function handleAddBan(e) {
-      e.preventDefault();
-      const target = document.getElementById('ban-target').value.trim();
-      const reason = document.getElementById('ban-reason').value.trim();
+        // NAVIGATION
+        function showSection(name) {
+            document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            
+            document.getElementById(`sec-${name}`).classList.remove('hidden');
+            event.currentTarget.classList.add('active');
+            document.getElementById('currentSectionTitle').innerText = event.currentTarget.innerText;
+        }
 
-      state.bans.push({ target, reason, by: state.currentUser.username, date: new Date().toLocaleString('pl-PL') });
-      localStorage.setItem('jrp_bans', JSON.stringify(state.bans));
-      closeModal('ban-modal');
-      e.target.reset();
-      renderAllData();
-    }
+        // LOGOWANIE ZDARZEŃ
+        async function addLog(type, desc) {
+            const log = {
+                time: new Date().toLocaleTimeString('pl-PL'),
+                type: type,
+                user: currentUser ? currentUser.nick : 'System',
+                desc: desc
+            };
+            await fetch(`${FIREBASE_DB}/logs.json`, { method: 'POST', body: JSON.stringify(log) });
+        }
 
-    // USTAWIENIA WEBHOOKA & LOGO
-    function saveWebhookUrl() {
-      const url = document.getElementById('webhook-url-input').value.trim();
-      state.webhookUrl = url;
-      localStorage.setItem('jrp_webhook', url);
-      alert('Zapisano Webhook Discorda!');
-    }
+        // ŁADOWANIE DANYCH
+        async function loadAllData() {
+            // Load Team
+            const teamRes = await fetch(`${FIREBASE_DB}/users.json`);
+            const teamData = await teamRes.json();
+            const teamBody = document.getElementById('teamTableBody');
+            teamBody.innerHTML = '';
+            let teamCount = 0;
+            if(teamData) {
+                Object.values(teamData).forEach(u => {
+                    teamCount++;
+                    teamBody.innerHTML += `<tr><td><b>${u.nick}</b></td><td><span class="badge badge-warning">${u.role}</span></td><td>${u.discordId}</td><td>${u.joinedAt || 'Brak danych'}</td></tr>`;
+                });
+            }
+            document.getElementById('statTeam').innerText = teamCount;
 
-    function saveServerLogo() {
-      const logo = document.getElementById('logo-url-input').value.trim();
-      if(logo) {
-        state.serverLogo = logo;
-        localStorage.setItem('jrp_logo', logo);
-        applyLogo();
-        alert('Zaktualizowano logo serwera!');
-      }
-    }
+            // Load BL
+            const blRes = await fetch(`${FIREBASE_DB}/blacklist.json`);
+            const blData = await blRes.json();
+            const blBody = document.getElementById('blTableBody');
+            blBody.innerHTML = '';
+            let blCount = 0;
+            if(blData) {
+                Object.values(blData).forEach(b => {
+                    blCount++;
+                    blBody.innerHTML += `<tr><td><b>${b.player}</b></td><td><span class="badge badge-danger">${b.type}</span></td><td>${b.reason}</td><td>${b.author}</td><td>${b.date}</td></tr>`;
+                });
+            }
+            document.getElementById('statBL').innerText = blCount;
 
-    function sendDiscordWebhook(message) {
-      if (!state.webhookUrl) return;
-      fetch(state.webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: message })
-      }).catch(err => console.error('Błąd Webhooka Discord:', err));
-    }
+            // Load Logs
+            const logsRes = await fetch(`${FIREBASE_DB}/logs.json`);
+            const logsData = await logsRes.json();
+            const logsBody = document.getElementById('logsTableBody');
+            const dashLogs = document.getElementById('dashLogsList');
+            logsBody.innerHTML = '';
+            dashLogs.innerHTML = '';
+            if(logsData) {
+                Object.values(logsData).reverse().forEach((l, index) => {
+                    logsBody.innerHTML += `<tr><td>${l.time}</td><td><span class="badge badge-warning">${l.type}</span></td><td>${l.user}</td><td>${l.desc}</td></tr>`;
+                    if(index < 5) {
+                        dashLogs.innerHTML += `<li style="margin-bottom:0.5rem; font-size:0.9rem;"><b>[${l.time}]</b> <span style="color:var(--accent);">${l.user}:</span> ${l.desc}</li>`;
+                    }
+                });
+            }
+        }
 
-    // MODAL HELPERS
-    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-  </script>
+        // DODAWANIE BLACKLISTY
+        async function addBlacklist(e) {
+            e.preventDefault();
+            const item = {
+                player: document.getElementById('blPlayer').value,
+                type: document.getElementById('blType').value,
+                reason: document.getElementById('blReason').value,
+                author: currentUser.nick,
+                date: new Date().toLocaleDateString('pl-PL')
+            };
+
+            await fetch(`${FIREBASE_DB}/blacklist.json`, { method: 'POST', body: JSON.stringify(item) });
+            await addLog('Blacklista', `Nłożono karę (${item.type}) na ${item.player}`);
+            
+            // Send Discord Hook
+            sendDiscordEmbed("Niewłaściwe zachowanie - Nowa Kara!", `**Gracz:** ${item.player}\n**Typ:** ${item.type}\n**Powód:** ${item.reason}\n**Nadający:** ${currentUser.nick}`, 15158332);
+
+            alert("Wniosek/Kara została pomyślnie zapisana!");
+            loadAllData();
+        }
+
+        // GENERATOR OGŁOSZEŃ / DISCORD HOOK
+        function saveWebhookSettings() {
+            const url = document.getElementById('webhookUrl').value;
+            localStorage.setItem('jezowe_webhook', url);
+            alert("Webhook został zapisany w pamięci przeglądarki!");
+        }
+
+        async function sendDiscordEmbed(title, description, color = 6570480) {
+            const hookUrl = localStorage.getItem('jezowe_webhook') || document.getElementById('webhookUrl').value;
+            if(!hookUrl) return;
+
+            const payload = {
+                embeds: [{
+                    title: title,
+                    description: description,
+                    color: color,
+                    footer: { text: "Jeżowe RP — System Administracyjny" },
+                    timestamp: new Date().toISOString()
+                }]
+            };
+
+            try {
+                await fetch(hookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } catch(e) {
+                console.error("Błąd Webhooka", e);
+            }
+        }
+
+        async function sendDiscordAnnouncement(e) {
+            e.preventDefault();
+            const title = document.getElementById('annTitle').value;
+            const content = document.getElementById('annContent').value;
+
+            await sendDiscordEmbed(`📢 ${title}`, content, 3447003);
+            await addLog('Ogłoszenie Discord', `Wysłano: ${title}`);
+            alert("Ogłoszenie wysłane!");
+        }
+
+        // Auto wczytanie Webhooka z pamięci
+        document.getElementById('webhookUrl').value = localStorage.getItem('jezowe_webhook') || '';
+    </script>
 </body>
 </html>
