@@ -57,8 +57,10 @@
             border-radius: 12px;
             padding: 2.5rem;
             width: 100%;
-            max-width: 420px;
+            max-width: 450px;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .auth-header {
@@ -238,6 +240,7 @@
         .badge-danger { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
         .badge-success { background: rgba(34, 197, 94, 0.2); color: var(--success); }
         .badge-warning { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .badge-role { background: rgba(99, 102, 241, 0.2); color: var(--accent); }
 
         table {
             width: 100%;
@@ -284,7 +287,7 @@
                 <button type="submit" class="btn">Zaloguj się</button>
             </form>
 
-            <!-- FORMULARZ REJESTRACJI -->
+            <!-- FORMULARZ REJESTRACJI (16 RANG) -->
             <form id="registerForm" class="hidden" onsubmit="handleRegister(event)">
                 <div class="form-group">
                     <label>Nick (z Discorda / RP)</label>
@@ -295,12 +298,30 @@
                     <input type="text" id="regDiscordId" class="form-control" placeholder="18-cyfrowe ID" required>
                 </div>
                 <div class="form-group">
-                    <label>Ranga / Stanowisko</label>
-                    <select id="regRole" class="form-control">
-                        <option value="Trial Admin">Trial Admin</option>
-                        <option value="Administrator">Administrator</option>
-                        <option value="Senior Admin">Senior Admin</option>
-                        <option value="Zarząd / Właściciel">Zarząd / Właściciel</option>
+                    <label>Ranga w Administracji (16 Rang)</label>
+                    <select id="regRole" class="form-control" required>
+                        <optgroup label="Zarząd & Główna Administracja">
+                            <option value="Właściciel Projektu">Właściciel Projektu</option>
+                            <option value="Współwłaściciel">Współwłaściciel</option>
+                            <option value="Head Developer">Head Developer</option>
+                            <option value="Developer">Developer</option>
+                            <option value="Head Admin (HA)">Head Admin (HA)</option>
+                            <option value="Vice Head Admin (VHA)">Vice Head Admin (VHA)</option>
+                        </optgroup>
+                        <optgroup label="Główni Opiekunowie">
+                            <option value="Opiekun Administracji">Opiekun Administracji</option>
+                            <option value="Opiekun Frakcji">Opiekun Frakcji</option>
+                            <option value="Opiekun Biznesów">Opiekun Biznesów</option>
+                        </optgroup>
+                        <optgroup label="Zespół Administracyjny">
+                            <option value="Senior Admin (SA)">Senior Admin (SA)</option>
+                            <option value="Administrator (A)">Administrator (A)</option>
+                            <option value="Junior Admin (JA)">Junior Admin (JA)</option>
+                            <option value="Moderator (Mod)">Moderator (Mod)</option>
+                            <option value="Junior Moderator (JMod)">Junior Moderator (JMod)</option>
+                            <option value="Helper (H)">Helper (H)</option>
+                            <option value="Trial Helper (TH)">Trial Helper (TH)</option>
+                        </optgroup>
                     </select>
                 </div>
                 <div class="form-group">
@@ -315,7 +336,7 @@
     <!-- SIDEBAR -->
     <div class="sidebar">
         <div class="brand">
-            <i class="fa-solid => fa-shield-halved" style="color: var(--accent);"></i>
+            <i class="fa-solid fa-shield-halved" style="color: var(--accent);"></i>
             Jeżowe Admin
         </div>
         <ul class="nav-menu">
@@ -338,7 +359,7 @@
                 <div class="avatar" id="userAvatar">A</div>
                 <div>
                     <div id="userName" style="font-weight: 600;">Niezalogowany</div>
-                    <div id="userRole" style="font-size: 0.75rem; color: var(--text-muted);">Gość</div>
+                    <div id="userRole" style="font-size: 0.75rem; color: var(--accent);">Gość</div>
                 </div>
                 <button onclick="logout()" style="margin-left: 1rem; background: none; border: none; color: var(--danger); cursor: pointer;"><i class="fa-solid fa-right-from-bracket"></i></button>
             </div>
@@ -346,7 +367,7 @@
 
         <div class="content-body">
 
-            <!-- SEKACJA: DASHBOARD -->
+            <!-- SEKCJA: DASHBOARD -->
             <div id="sec-dashboard" class="section-content">
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
                     <div class="card">
@@ -383,9 +404,7 @@
                                 <th>Opis Szczegółowy</th>
                             </tr>
                         </thead>
-                        <tbody id="logsTableBody">
-                            <!-- Wklejane dynamicznie -->
-                        </tbody>
+                        <tbody id="logsTableBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -393,7 +412,7 @@
             <!-- SEKCJA: SKŁAD EKIPY -->
             <div id="sec-team" class="section-content hidden">
                 <div class="card">
-                    <h4>Zarejestrowani Administratorzy</h4>
+                    <h4>Zarejestrowani Administratorzy i Zarząd</h4>
                     <table>
                         <thead>
                             <tr>
@@ -403,9 +422,7 @@
                                 <th>Data Dołączenia</th>
                             </tr>
                         </thead>
-                        <tbody id="teamTableBody">
-                            <!-- Zalogowani admini z bazy Firebase -->
-                        </tbody>
+                        <tbody id="teamTableBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -657,7 +674,7 @@
             if(teamData) {
                 Object.values(teamData).forEach(u => {
                     teamCount++;
-                    teamBody.innerHTML += `<tr><td><b>${u.nick}</b></td><td><span class="badge badge-warning">${u.role}</span></td><td>${u.discordId}</td><td>${u.joinedAt || 'Brak danych'}</td></tr>`;
+                    teamBody.innerHTML += `<tr><td><b>${u.nick}</b></td><td><span class="badge badge-role">${u.role}</span></td><td>${u.discordId}</td><td>${u.joinedAt || 'Brak danych'}</td></tr>`;
                 });
             }
             document.getElementById('statTeam').innerText = teamCount;
@@ -705,7 +722,7 @@
             };
 
             await fetch(`${FIREBASE_DB}/blacklist.json`, { method: 'POST', body: JSON.stringify(item) });
-            await addLog('Blacklista', `Nłożono karę (${item.type}) na ${item.player}`);
+            await addLog('Blacklista', `Nałożono karę (${item.type}) na ${item.player}`);
             
             // Send Discord Hook
             sendDiscordEmbed("Niewłaściwe zachowanie - Nowa Kara!", `**Gracz:** ${item.player}\n**Typ:** ${item.type}\n**Powód:** ${item.reason}\n**Nadający:** ${currentUser.nick}`, 15158332);
