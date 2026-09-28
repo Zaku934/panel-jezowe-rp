@@ -1,778 +1,687 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="pl" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jeżowe Roleplay — Panel Administracyjny</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <title>MegaDashboard Pro - Enterprise System v4.2</title>
     <style>
+        /* ==========================================================================
+           1. RESET & CSS VARIABLES
+           ================================================================---------- */
         :root {
-            --bg-dark: #0f1117;
-            --bg-card: #181b24;
-            --bg-input: #202430;
-            --border-color: #2a2f3d;
-            --accent: #6366f1;
-            --accent-hover: #4f46e5;
-            --danger: #ef4444;
-            --success: #22c55e;
-            --warning: #f59e0b;
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
-            --sidebar-width: 260px;
+            --bg-main: #0f172a;
+            --bg-surface: #1e293b;
+            --bg-surface-hover: #334155;
+            --border-color: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-primary: #6366f1;
+            --accent-primary-hover: #4f46e5;
+            --accent-success: #10b981;
+            --accent-warning: #f59e0b;
+            --accent-danger: #ef4444;
+            --accent-info: #06b6d4;
+            --sidebar-width: 280px;
+            --header-height: 70px;
+            --transition-speed: 0.3s;
+        }
+
+        [data-theme="light"] {
+            --bg-main: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-surface-hover: #f1f5f9;
+            --border-color: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent-primary: #4f46e5;
+            --accent-primary-hover: #4338ca;
         }
 
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
 
         body {
-            background-color: var(--bg-dark);
+            background-color: var(--bg-main);
             color: var(--text-main);
+            min-height: 100vh;
             display: flex;
-            height: 100vh;
-            overflow: hidden;
+            overflow-x: hidden;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
         }
 
-        /* LOGGING / AUTH SCREEN */
-        .auth-container {
+        /* ==========================================================================
+           2. SIDEBAR STYLING
+           ================================================================---------- */
+        aside {
+            width: var(--sidebar-width);
+            background-color: var(--bg-surface);
+            border-right: 1px solid var(--border-color);
+            height: 100vh;
             position: fixed;
             top: 0;
             left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(15, 17, 23, 0.95);
-            backdrop-filter: blur(10px);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .auth-box {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 2.5rem;
-            width: 100%;
-            max-width: 450px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .auth-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .auth-header h2 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 0.5rem;
-        }
-
-        .auth-tabs {
-            display: flex;
-            margin-bottom: 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .auth-tab {
-            flex: 1;
-            padding: 0.75rem;
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .auth-tab.active {
-            color: var(--accent);
-            border-bottom: 2px solid var(--accent);
-        }
-
-        .form-group {
-            margin-bottom: 1.2rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-size: 0.875rem;
-            color: var(--text-muted);
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background: var(--bg-input);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: #fff;
-            outline: none;
-            transition: 0.2s;
-        }
-
-        .form-control:focus {
-            border-color: var(--accent);
-        }
-
-        .btn {
-            width: 100%;
-            padding: 0.75rem;
-            border: none;
-            border-radius: 8px;
-            background: var(--accent);
-            color: #fff;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .btn:hover {
-            background: var(--accent-hover);
-        }
-
-        /* MAIN LAYOUT */
-        .sidebar {
-            width: var(--sidebar-width);
-            background: var(--bg-card);
-            border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
+            z-index: 100;
+            transition: transform var(--transition-speed) ease;
         }
 
-        .brand {
-            padding: 1.5rem;
-            font-size: 1.25rem;
-            font-weight: 700;
-            border-bottom: 1px solid var(--border-color);
+        .sidebar-brand {
+            height: var(--header-height);
             display: flex;
             align-items: center;
+            padding: 0 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            border-bottom: 1px solid var(--border-color);
             gap: 0.75rem;
         }
 
-        .nav-menu {
-            list-style: none;
-            padding: 1rem 0;
-            overflow-y: auto;
-            flex: 1;
+        .sidebar-brand svg {
+            width: 32px;
+            height: 32px;
+            fill: var(--accent-primary);
         }
 
-        .nav-item {
-            padding: 0.75rem 1.5rem;
+        .sidebar-menu {
+            list-style: none;
+            padding: 1.5rem 1rem;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .sidebar-menu-category {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            padding-left: 0.75rem;
+        }
+
+        .sidebar-menu-item {
+            margin-bottom: 0.35rem;
+        }
+
+        .sidebar-menu-link {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.85rem;
+            padding: 0.75rem;
             color: var(--text-muted);
-            cursor: pointer;
-            transition: 0.2s;
+            text-decoration: none;
+            border-radius: 0.5rem;
             font-weight: 500;
+            transition: all 0.2s ease;
         }
 
-        .nav-item:hover, .nav-item.active {
-            background: rgba(99, 102, 241, 0.1);
-            color: var(--accent);
-            border-left: 3px solid var(--accent);
+        .sidebar-menu-link:hover, .sidebar-menu-link.active {
+            background-color: var(--bg-surface-hover);
+            color: var(--text-main);
         }
 
-        .main-content {
-            flex: 1;
+        .sidebar-menu-link.active {
+            background-color: var(--accent-primary);
+            color: #ffffff;
+        }
+
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* ==========================================================================
+           3. MAIN CONTAINER & HEADER
+           ================================================================---------- */
+        .main-wrapper {
+            margin-left: var(--sidebar-width);
+            flex-grow: 1;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            min-height: 100vh;
         }
 
-        .topbar {
-            height: 70px;
-            background: var(--bg-card);
+        header {
+            height: var(--header-height);
+            background-color: var(--bg-surface);
             border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 99;
         }
 
-        .user-profile {
+        .header-search {
+            display: flex;
+            align-items: center;
+            background-color: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            width: 350px;
+            gap: 0.5rem;
+        }
+
+        .header-search input {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            outline: none;
+            width: 100%;
+        }
+
+        .header-actions {
             display: flex;
             align-items: center;
             gap: 1rem;
         }
 
-        .avatar {
+        .btn-icon {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: var(--accent);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
         }
 
-        .content-body {
-            padding: 2rem;
-            overflow-y: auto;
-            flex: 1;
+        .btn-icon:hover {
+            background-color: var(--bg-surface-hover);
         }
 
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
         }
 
-        .badge {
-            padding: 0.25rem 0.6rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: 600;
         }
 
-        .badge-danger { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
-        .badge-success { background: rgba(34, 197, 94, 0.2); color: var(--success); }
-        .badge-warning { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
-        .badge-role { background: rgba(99, 102, 241, 0.2); color: var(--accent); }
+        /* ==========================================================================
+           4. DASHBOARD CONTENT & GRIDS
+           ================================================================---------- */
+        .content {
+            padding: 2rem;
+            flex-grow: 1;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .page-title p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: var(--accent-primary);
+        }
+
+        .metric-card.success::before { background-color: var(--accent-success); }
+        .metric-card.warning::before { background-color: var(--accent-warning); }
+        .metric-card.danger::before { background-color: var(--accent-danger); }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .metric-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .trend-up { color: var(--accent-success); }
+        .trend-down { color: var(--accent-danger); }
+
+        /* ==========================================================================
+           5. CHARTS & DATA SECTIONS
+           ================================================================---------- */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+        }
+
+        .chart-placeholder {
+            height: 280px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 1rem;
+            padding-top: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .chart-bar {
+            flex-grow: 1;
+            background-color: var(--accent-primary);
+            border-radius: 4px 4px 0 0;
+            transition: height 0.5s ease;
+            position: relative;
+        }
+
+        .chart-bar:hover {
+            opacity: 0.8;
+        }
+
+        /* ==========================================================================
+           6. ADVANCED DATA TABLES
+           ================================================================---------- */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 1rem;
+            text-align: left;
+            font-size: 0.95rem;
         }
 
         th, td {
-            text-align: left;
-            padding: 0.75rem 1rem;
+            padding: 1rem;
             border-bottom: 1px solid var(--border-color);
         }
 
-        th { color: var(--text-muted); font-weight: 600; }
+        th {
+            font-weight: 600;
+            color: var(--text-muted);
+            background-color: var(--bg-surface-hover);
+        }
 
-        .hidden { display: none !important; }
+        tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        tbody tr:hover {
+            background-color: var(--bg-surface-hover);
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-success { background-color: rgba(16, 185, 129, 0.15); color: var(--accent-success); }
+        .badge-warning { background-color: rgba(245, 158, 11, 0.15); color: var(--accent-warning); }
+        .badge-danger { background-color: rgba(239, 68, 68, 0.15); color: var(--accent-danger); }
+
+        /* ==========================================================================
+           7. SYSTEM LOGS & TERMINAL STYLING
+           ================================================================---------- */
+        .terminal {
+            background-color: #090d16;
+            color: #38bdf8;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            height: 200px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            border: 1px solid var(--border-color);
+        }
+
+        .terminal-line {
+            margin-bottom: 0.25rem;
+        }
+
+        .terminal-line.error { color: #f87171; }
+        .terminal-line.success { color: #4ade80; }
+
+        /* ==========================================================================
+           8. MODALS & TOASTS
+           ================================================================---------- */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            z-index: 1000;
+        }
+
+        .toast {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            padding: 1rem 1.25rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideIn 0.3s ease forwards;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- AUTHENTICATION MODAL -->
-    <div id="authModal" class="auth-container">
-        <div class="auth-box">
-            <div class="auth-header">
-                <h2>Jeżowe RP</h2>
-                <p style="color: var(--text-muted); font-size: 0.9rem;">Panel Zarządzania Administracją</p>
-            </div>
-            
-            <div class="auth-tabs">
-                <button class="auth-tab active" onclick="switchAuthMode('login')">Logowanie</button>
-                <button class="auth-tab" onclick="switchAuthMode('register')">Rejestracja</button>
-            </div>
-
-            <!-- FORMULARZ LOGOWANIA -->
-            <form id="loginForm" onsubmit="handleLogin(event)">
-                <div class="form-group">
-                    <label>Nick z Serwera / Discord</label>
-                    <input type="text" id="loginNick" class="form-control" placeholder="np. Janek_PL" required>
-                </div>
-                <div class="form-group">
-                    <label>Hasło</label>
-                    <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="btn">Zaloguj się</button>
-            </form>
-
-            <!-- FORMULARZ REJESTRACJI -->
-            <form id="registerForm" class="hidden" onsubmit="handleRegister(event)">
-                <div class="form-group">
-                    <label>Nick (z Discorda / RP)</label>
-                    <input type="text" id="regNick" class="form-control" placeholder="Janek_PL" required>
-                </div>
-                <div class="form-group">
-                    <label>ID Discord (np. 3451239871239812)</label>
-                    <input type="text" id="regDiscordId" class="form-control" placeholder="18-cyfrowe ID" required>
-                </div>
-                <div class="form-group">
-                    <label>Ranga / Stanowisko</label>
-                    <select id="regRole" class="form-control" required>
-                        <option value="👑 | Właściciel">👑 | Właściciel</option>
-                        <option value="👑 | Współwłaściciel">👑 | Współwłaściciel</option>
-                        <option value="👥 | Zarząd Serwera">👥 | Zarząd Serwera</option>
-                        <option value="🛠️ | Head Administrator">🛠️ | Head Administrator</option>
-                        <option value="🛠️ | St. Administrator">🛠️ | St. Administrator</option>
-                        <option value="🛠️ | Administrator">🛠️ | Administrator</option>
-                        <option value="🛠️ | Jr. Administrator">🛠️ | Jr. Administrator</option>
-                        <option value="🔨 | Head Moderator">🔨 | Head Moderator</option>
-                        <option value="🔨 | St. Moderator">🔨 | St. Moderator</option>
-                        <option value="🔨 | Moderator">🔨 | Moderator</option>
-                        <option value="🔨 | Jr. Moderator">🔨 | Jr. Moderator</option>
-                        <option value="👀 | Head Support">👀 | Head Support</option>
-                        <option value="👀 | St. Support">👀 | St. Support</option>
-                        <option value="👀 | Support">👀 | Support</option>
-                        <option value="👀 | Jr. Support">👀 | Jr. Support</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Hasło do Konta</label>
-                    <input type="password" id="regPassword" class="form-control" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="btn">Stwórz Konto Admina</button>
-            </form>
-        </div>
-    </div>
-
     <!-- SIDEBAR -->
-    <div class="sidebar">
-        <div class="brand">
-            <i class="fa-solid fa-shield-halved" style="color: var(--accent);"></i>
-            Jeżowe Admin
+    <aside>
+        <div class="sidebar-brand">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            <span>MegaDashboard</span>
         </div>
-        <ul class="nav-menu">
-            <li class="nav-item active" onclick="showSection('dashboard')"><i class="fa-solid fa-chart-line"></i> Dashboard</li>
-            <li class="nav-item" onclick="showSection('logs')"><i class="fa-solid fa-list-check"></i> Logi Zdarzeń / DC</li>
-            <li class="nav-item" onclick="showSection('team')"><i class="fa-solid fa-users"></i> Skład Ekipy</li>
-            <li class="nav-item" onclick="showSection('blacklist')"><i class="fa-solid fa-ban"></i> Blacklista / Bazy Kar</li>
-            <li class="nav-item" onclick="showSection('applications')"><i class="fa-solid fa-file-signature"></i> Podania na Admina</li>
-            <li class="nav-item" onclick="showSection('tariffs')"><i class="fa-solid fa-gavel"></i> Taryfikator Kar</li>
-            <li class="nav-item" onclick="showSection('webhook')"><i class="fa-solid fa-paper-plane"></i> Generator Ogłoszeń</li>
-            <li class="nav-item" onclick="showSection('settings')"><i class="fa-solid fa-gear"></i> Ustawienia Webhooka</li>
+        <ul class="sidebar-menu">
+            <li class="sidebar-menu-category">Menu Główne</li>
+            <li class="sidebar-menu-item"><a href="#" class="sidebar-menu-link active">Panel Główny</a></li>
+            <li class="sidebar-menu-item"><a href="#" class="sidebar-menu-link">Analityka</a></li>
+            <li class="sidebar-menu-item"><a href="#" class="sidebar-menu-link">Użytkownicy</a></li>
+            <li class="sidebar-menu-item"><a href="#" class="sidebar-menu-link">Transakcje</a></li>
+            <li class="sidebar-menu-category">System</li>
+            <li class="sidebar-menu-item"><a href="#" class="sidebar-menu-link">Baza Danych</a></li>
+            <li class="sidebar-menu-item"><a href="#" class="sidebar-menu-link">Bezpieczeństwo</a></li>
+            <li class="sidebar-menu-item"><a href="#" class="sidebar-menu-link">Ustawienia API</a></li>
+            <li class="sidebar-menu-item"><a href="#" class="sidebar-menu-link">Logi Systemowe</a></li>
         </ul>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div class="main-content">
-        <div class="topbar">
-            <h3 id="currentSectionTitle">Dashboard</h3>
-            <div class="user-profile">
-                <div class="avatar" id="userAvatar">A</div>
-                <div>
-                    <div id="userName" style="font-weight: 600;">Niezalogowany</div>
-                    <div id="userRole" style="font-size: 0.75rem; color: var(--accent);">Gość</div>
-                </div>
-                <button onclick="logout()" style="margin-left: 1rem; background: none; border: none; color: var(--danger); cursor: pointer;"><i class="fa-solid fa-right-from-bracket"></i></button>
-            </div>
+        <div class="sidebar-footer">
+            <button id="themeToggleBtn" style="width: 100%; padding: 0.75rem; background: var(--bg-surface-hover); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 0.5rem; cursor: pointer;">Zmień Motyw</button>
         </div>
+    </aside>
 
-        <div class="content-body">
-
-            <!-- SEKCJA: DASHBOARD -->
-            <div id="sec-dashboard" class="section-content">
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-                    <div class="card">
-                        <div style="color: var(--text-muted); font-size: 0.85rem;">Członków Ekipy</div>
-                        <div style="font-size: 2rem; font-weight: 700; margin-top: 0.5rem;" id="statTeam">0</div>
-                    </div>
-                    <div class="card">
-                        <div style="color: var(--text-muted); font-size: 0.85rem;">Aktywnych Blacklist</div>
-                        <div style="font-size: 2rem; font-weight: 700; color: var(--danger); margin-top: 0.5rem;" id="statBL">0</div>
-                    </div>
-                    <div class="card">
-                        <div style="color: var(--text-muted); font-size: 0.85rem;">Oczekujące Podania</div>
-                        <div style="font-size: 2rem; font-weight: 700; color: var(--warning); margin-top: 0.5rem;" id="statApps">0</div>
+    <!-- MAIN WRAPPER -->
+    <div class="main-wrapper">
+        <header>
+            <div class="header-search">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" placeholder="Szukaj w systemie (Ctrl + K)..." id="globalSearch">
+            </div>
+            <div class="header-actions">
+                <button class="btn-icon" id="notificationBtn" title="Powiadomienia">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                </button>
+                <div class="user-profile">
+                    <div class="user-avatar">AD</div>
+                    <div>
+                        <div style="font-weight: 600; font-size: 0.9rem;">Alex Doe</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">Administrator</div>
                     </div>
                 </div>
-                <div class="card">
-                    <h4>Najnowsze Zdarzenia</h4>
-                    <ul id="dashLogsList" style="list-style: none; margin-top: 1rem;">
-                        <li style="color: var(--text-muted); font-size: 0.9rem;">Brak nowych zdarzeń...</li>
-                    </ul>
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>Przegląd Systemu</h1>
+                    <p>Wszystkie kluczowe wskaźniki wydajności w jednym miejscu.</p>
+                </div>
+                <div>
+                    <button style="padding: 0.75rem 1.5rem; background: var(--accent-primary); color: white; border: none; border-radius: 0.5rem; font-weight: 600; cursor: pointer;" onclick="triggerAction()">Generuj Raport</button>
                 </div>
             </div>
 
-            <!-- SEKCJA: LOGI DISCORD / SERWER -->
-            <div id="sec-logs" class="section-content hidden">
-                <div class="card">
-                    <h4>Rejestr Zdarzeń i Aktywności Discord</h4>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Czas</th>
-                                <th>Typ zdarzenia</th>
-                                <th>Użytkownik / Admin</th>
-                                <th>Opis Szczegółowy</th>
-                            </tr>
-                        </thead>
-                        <tbody id="logsTableBody"></tbody>
-                    </table>
+            <!-- METRICS GRID -->
+            <div class="metrics-grid">
+                <div class="metric-card success">
+                    <div class="metric-header"><span>Całkowity Przychód</span><span>PLN</span></div>
+                    <div class="metric-value">148,250 zł</div>
+                    <div class="metric-trend trend-up">▲ +12.4% od ostatniego miesiąca</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-header"><span>Aktywni Użytkownicy</span><span>OSÓB</span></div>
+                    <div class="metric-value">12,480</div>
+                    <div class="metric-trend trend-up">▲ +5.1% dzisiaj</div>
+                </div>
+                <div class="metric-card warning">
+                    <div class="metric-header"><span>Obciążenie Serwera</span><span>CPU</span></div>
+                    <div class="metric-value">76.4%</div>
+                    <div class="metric-trend trend-down">▼ Stabilne</div>
+                </div>
+                <div class="metric-card danger">
+                    <div class="metric-header"><span>Błędy API (24h)</span><span>KRYTYCZNE</span></div>
+                    <div class="metric-value">3</div>
+                    <div class="metric-trend trend-down">▼ Wymaga uwagi</div>
                 </div>
             </div>
 
-            <!-- SEKCJA: SKŁAD EKIPY -->
-            <div id="sec-team" class="section-content hidden">
+            <!-- ANALYTICS GRID -->
+            <div class="analytics-grid">
                 <div class="card">
-                    <h4>Zarejestrowani Administratorzy i Zarząd</h4>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Administrator</th>
-                                <th>Ranga</th>
-                                <th>Discord ID</th>
-                                <th>Data Dołączenia</th>
-                            </tr>
-                        </thead>
-                        <tbody id="teamTableBody"></tbody>
-                    </table>
+                    <div class="card-header">
+                        <div class="card-title">Statystyki Ruchu w Sieci</div>
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">Ostatnie 7 dni</span>
+                    </div>
+                    <div class="chart-placeholder" id="dynamicChart">
+                        <!-- Wygenerowane dynamicznie przez JS -->
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Logi Konsoli Systemowej</div>
+                    </div>
+                    <div class="terminal" id="terminalLog">
+                        <div class="terminal-line">[12:00:01] System inicialization sequence started...</div>
+                        <div class="terminal-line success">[12:00:02] Connected to database cluster [OK]</div>
+                        <div class="terminal-line">[12:00:05] Authorized user: alex_admin</div>
+                        <div class="terminal-line error">[12:01:22] Warning: High memory allocation on worker #4</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- SEKCJA: BLACKLISTA -->
-            <div id="sec-blacklist" class="section-content hidden">
-                <div class="card">
-                    <h4>Dodaj Wniosek o Blacklistę</h4>
-                    <form onsubmit="addBlacklist(event)">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                            <div class="form-group">
-                                <label>Gracz / Nick / ID Discord</label>
-                                <input type="text" id="blPlayer" class="form-control" placeholder="np. Krystian_RP (28392183921)" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Typ kary</label>
-                                <select id="blType" class="form-control">
-                                    <option value="Blacklista Frakcyjna">Blacklista Frakcyjna</option>
-                                    <option value="Blacklista Całkowita (BL)">Blacklista Całkowita (BL)</option>
-                                    <option value="Ban Permanentny">Ban Permanentny</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Powód kary oraz Link do Dowodów</label>
-                            <textarea id="blReason" class="form-control" rows="3" placeholder="Powód oraz linki do zdjęć/filmów..." required></textarea>
-                        </div>
-                        <button type="submit" class="btn" style="width: auto;">Wyślij Wniosek do Bazy</button>
-                    </form>
+            <!-- DATA TABLE CARD -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Ostatnie Transakcje Klientów</div>
                 </div>
-
-                <div class="card">
-                    <h4>Aktywne Blacklisty i Banie</h4>
+                <div class="table-container">
                     <table>
                         <thead>
                             <tr>
-                                <th>Gracz</th>
-                                <th>Rodzaj Kary</th>
-                                <th>Powód & Dowody</th>
-                                <th>Nadający</th>
+                                <th>ID Transakcji</th>
+                                <th>Klient</th>
+                                <th>Kwota</th>
+                                <th>Status</th>
                                 <th>Data</th>
                             </tr>
                         </thead>
-                        <tbody id="blTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- SEKCJA: PODANIA NA ADMINA -->
-            <div id="sec-applications" class="section-content hidden">
-                <div class="card">
-                    <h4>Złóż Podanie do Ekipy</h4>
-                    <form onsubmit="submitApplication(event)">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                            <div class="form-group">
-                                <label>Wiek</label>
-                                <input type="number" id="appAge" class="form-control" min="13" max="99" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Ilość godzin na RP / Serwerze</label>
-                                <input type="text" id="appHours" class="form-control" placeholder="np. 450h" required>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Dlaczego Ty? / Doświadczenie</label>
-                            <textarea id="appText" class="form-control" rows="4" placeholder="Napisz kilka zdań o sobie i swoim doświadczeniu w administracji..." required></textarea>
-                        </div>
-                        <button type="submit" class="btn" style="width: auto;">Wyślij Podanie</button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- SEKCJA: TARYFIKATOR KAR -->
-            <div id="sec-tariffs" class="section-content hidden">
-                <div class="card">
-                    <h4>Oficjalny Taryfikator Kar Jeżowe RP</h4>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Przewinienie</th>
-                                <th>Sugerowana Kara</th>
-                                <th>Kategoria</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>RDM (Random Deathmatch)</td><td>Jail 60-120 min / Ban 1-3 dni</td><td><span class="badge badge-danger">Główne</span></td></tr>
-                            <tr><td>VDM (Vehicle Deathmatch)</td><td>Jail 30-90 min / Ban 1 dzień</td><td><span class="badge badge-danger">Główne</span></td></tr>
-                            <tr><td>FailRP / NonRP</td><td>Warn / Jail 45 min</td><td><span class="badge badge-warning">Lekkie</span></td></tr>
-                            <tr><td>MetaGaming (MG)</td><td>Warn / Jail 60 min</td><td><span class="badge badge-warning">Lekkie</span></td></tr>
-                            <tr><td>QuitRP (Ucieczka od Akcji)</td><td>Ban 3-7 dni</td><td><span class="badge badge-danger">Ciężkie</span></td></tr>
-                            <tr><td>Cheating / Hacki</td><td>Ban Permanentny + BL</td><td><span class="badge badge-danger">Krytyczne</span></td></tr>
+                        <tbody id="transactionTableBody">
+                            <!-- Dane ładowane dynamicznie -->
                         </tbody>
                     </table>
                 </div>
             </div>
-
-            <!-- SEKCJA: GENERATOR OGŁOSZEŃ -->
-            <div id="sec-webhook" class="section-content hidden">
-                <div class="card">
-                    <h4>Wyślij Ogłoszenie na Discorda</h4>
-                    <form onsubmit="sendDiscordAnnouncement(event)">
-                        <div class="form-group">
-                            <label>Tytuł Ogłoszenia</label>
-                            <input type="text" id="annTitle" class="form-control" placeholder="np. Przerwa Techniczna / Nowa Aktualizacja" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Treść Wiadomości</label>
-                            <textarea id="annContent" class="form-control" rows="5" placeholder="Wpisz treść, która ma trafić na kanał Discord..." required></textarea>
-                        </div>
-                        <button type="submit" class="btn">Wyślij na Discord (Webhook)</button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- SEKCJA: USTAWIENIA WEBHOOKA -->
-            <div id="sec-settings" class="section-content hidden">
-                <div class="card">
-                    <h4>Konfiguracja Połączeń Discord</h4>
-                    <div class="form-group">
-                        <label>Discord Webhook URL (Powiadomienia o Banach i Ogłoszenia)</label>
-                        <input type="text" id="webhookUrl" class="form-control" placeholder="https://discord.com/api/webhooks/...">
-                    </div>
-                    <button onclick="saveWebhookSettings()" class="btn" style="width: auto;">Zapisz Konfigurację</button>
-                </div>
-            </div>
-
         </div>
     </div>
 
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <script>
-        let currentUser = null;
+        /* ==========================================================================
+           9. SYSTEM INITIALIZATION & APPLICATION LOGIC
+           ================================================================---------- */
 
-        // Inicjalizacja domyślnego konta testowego, jeśli brak użytkowników
-        if (!localStorage.getItem('jezowe_users')) {
-            const defaultUsers = [{
-                nick: "Zaku",
-                discordId: "123456789012345678",
-                role: "👑 | Właściciel",
-                password: "password",
-                joinedAt: new Date().toLocaleDateString('pl-PL')
-            }];
-            localStorage.setItem('jezowe_users', JSON.stringify(defaultUsers));
-        }
+        // Dynamic Chart Generation
+        const chartContainer = document.getElementById('dynamicChart');
+        const chartData = [45, 60, 75, 50, 90, 80, 95];
+        
+        chartData.forEach(val => {
+            const bar = document.createElement('div');
+            bar.className = 'chart-bar';
+            bar.style.height = `${val}%`;
+            chartContainer.appendChild(bar);
+        });
 
-        // AUTH SWITCH
-        function switchAuthMode(mode) {
-            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-            if (mode === 'login') {
-                document.querySelectorAll('.auth-tab')[0].classList.add('active');
-                document.getElementById('loginForm').classList.remove('hidden');
-                document.getElementById('registerForm').classList.add('hidden');
-            } else {
-                document.querySelectorAll('.auth-tab')[1].classList.add('active');
-                document.getElementById('loginForm').classList.add('hidden');
-                document.getElementById('registerForm').classList.remove('hidden');
-            }
-        }
+        // Transactions Mock Data Generator
+        const clients = ['Jan Kowalski', 'Anna Nowak', 'Piotr Zieliński', 'Katarzyna Wójcik', 'Michał Lewandowski'];
+        const statuses = [
+            { name: 'Zakończono', class: 'badge-success' },
+            { name: 'Oczekuje', class: 'badge-warning' },
+            { name: 'Odrzucono', class: 'badge-danger' }
+        ];
 
-        // LOGOWANIE
-        function handleLogin(e) {
-            e.preventDefault();
-            const nick = document.getElementById('loginNick').value.trim();
-            const pass = document.getElementById('loginPassword').value.trim();
-
-            const users = JSON.parse(localStorage.getItem('jezowe_users') || '[]');
-            let found = users.find(u => u.nick.toLowerCase() === nick.toLowerCase() && u.password === pass);
-
-            if (found) {
-                currentUser = found;
-                initSession();
-            } else {
-                alert("Błędny nick lub hasło! (Domyślne konto: Zaku / hasło: password)");
-            }
-        }
-
-        // REJESTRACJA ADMINA
-        function handleRegister(e) {
-            e.preventDefault();
-            const newUser = {
-                nick: document.getElementById('regNick').value.trim(),
-                discordId: document.getElementById('regDiscordId').value.trim(),
-                role: document.getElementById('regRole').value,
-                password: document.getElementById('regPassword').value.trim(),
-                joinedAt: new Date().toLocaleDateString('pl-PL')
-            };
-
-            let users = JSON.parse(localStorage.getItem('jezowe_users') || '[]');
-            users.push(newUser);
-            localStorage.setItem('jezowe_users', JSON.stringify(users));
-
-            addLog('Dołączenie do Ekipy', `Nowy admin: ${newUser.nick} (${newUser.role})`);
-
-            alert("Konto utworzone pomyślnie! Możesz się teraz zalogować.");
-            switchAuthMode('login');
-        }
-
-        function initSession() {
-            document.getElementById('authModal').classList.add('hidden');
-            document.getElementById('userName').innerText = currentUser.nick;
-            document.getElementById('userRole').innerText = currentUser.role;
-            document.getElementById('userAvatar').innerText = currentUser.nick[0].toUpperCase();
-
-            loadAllData();
-        }
-
-        function logout() {
-            location.reload();
-        }
-
-        // NAVIGATION
-        function showSection(name) {
-            document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden'));
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        const tableBody = document.getElementById('transactionTableBody');
+        for(let i = 1; i <= 8; i++) {
+            const randomClient = clients[Math.floor(Math.random() * clients.length)];
+            const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+            const randomAmount = (Math.random() * 2000 + 100).toFixed(2) + ' zł';
             
-            document.getElementById(`sec-${name}`).classList.remove('hidden');
-            event.currentTarget.classList.add('active');
-            document.getElementById('currentSectionTitle').innerText = event.currentTarget.innerText;
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>#TRX-9482${i}</td>
+                <td>${randomClient}</td>
+                <td><strong>${randomAmount}</strong></td>
+                <td><span class="badge ${randomStatus.class}">${randomStatus.name}</span></td>
+                <td>2026-09-28 14:2${i}</td>
+            `;
+            tableBody.appendChild(row);
         }
 
-        // LOGOWANIE ZDARZEŃ
-        function addLog(type, desc) {
-            const logs = JSON.parse(localStorage.getItem('jezowe_logs') || '[]');
-            logs.push({
-                time: new Date().toLocaleTimeString('pl-PL'),
-                type: type,
-                user: currentUser ? currentUser.nick : 'System',
-                desc: desc
-            });
-            localStorage.setItem('jezowe_logs', JSON.stringify(logs));
+        // Theme Toggle Functionality
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const htmlElement = document.documentElement;
+
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            htmlElement.setAttribute('data-theme', newTheme);
+            showToast(`Zmieniono motyw na: ${newTheme.toUpperCase()}`);
+        });
+
+        // Toast Notification System
+        function showToast(message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `
+                <svg width="18" height="18" fill="var(--accent-success)" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 15h-2v-6h2zm0-8h-2V7h2z"/></svg>
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, 3500);
         }
 
-        // ŁADOWANIE DANYCH
-        function loadAllData() {
-            // Load Team
-            const users = JSON.parse(localStorage.getItem('jezowe_users') || '[]');
-            const teamBody = document.getElementById('teamTableBody');
-            teamBody.innerHTML = '';
-            users.forEach(u => {
-                teamBody.innerHTML += `<tr><td><b>${u.nick}</b></td><td><span class="badge badge-role">${u.role}</span></td><td>${u.discordId}</td><td>${u.joinedAt || 'Brak danych'}</td></tr>`;
-            });
-            document.getElementById('statTeam').innerText = users.length;
+        // Action Trigger
+        function triggerAction() {
+            showToast('Raport systemowy został wygenerowany pomyślnie!');
+            const terminal = document.getElementById('terminalLog');
+            const line = document.createElement('div');
+            line.className = 'terminal-line success';
+            line.innerText = `[${new Date().toLocaleTimeString()}] Manual system report export completed.`;
+            terminal.appendChild(line);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
 
-            // Load BL
-            const blList = JSON.parse(localStorage.getItem('jezowe_blacklist') || '[]');
-            const blBody = document.getElementById('blTableBody');
-            blBody.innerHTML = '';
-            blList.forEach(b => {
-                blBody.innerHTML += `<tr><td><b>${b.player}</b></td><td><span class="badge badge-danger">${b.type}</span></td><td>${b.reason}</td><td>${b.author}</td><td>${b.date}</td></tr>`;
-            });
-            document.getElementById('statBL').innerText = blList.length;
-
-            // Load Logs
-            const logs = JSON.parse(localStorage.getItem('jezowe_logs') || '[]');
-            const logsBody = document.getElementById('logsTableBody');
-            const dashLogs = document.getElementById('dashLogsList');
-            logsBody.innerHTML = '';
-            dashLogs.innerHTML = '';
-            
-            const reversedLogs = [...logs].reverse();
-            reversedLogs.forEach((l, index) => {
-                logsBody.innerHTML += `<tr><td>${l.time}</td><td><span class="badge badge-warning">${l.type}</span></td><td>${l.user}</td><td>${l.desc}</td></tr>`;
-                if(index < 5) {
-                    dashLogs.innerHTML += `<li style="margin-bottom:0.5rem; font-size:0.9rem;"><b>[${l.time}]</b> <span style="color:var(--accent);">${l.user}:</span> ${l.desc}</li>`;
-                }
-            });
-            if(logs.length === 0) {
-                dashLogs.innerHTML = `<li style="color: var(--text-muted); font-size: 0.9rem;">Brak nowych zdarzeń...</li>`;
+        // Global Search Simulation
+        const searchInput = document.getElementById('globalSearch');
+        searchInput.addEventListener('keydown', (e) => {
+            if(e.key === 'Enter') {
+                showToast(`Wyszukiwano: "${searchInput.value}"`);
             }
-        }
-
-        // DODAWANIE BLACKLISTY
-        function addBlacklist(e) {
-            e.preventDefault();
-            const item = {
-                player: document.getElementById('blPlayer').value,
-                type: document.getElementById('blType').value,
-                reason: document.getElementById('blReason').value,
-                author: currentUser.nick,
-                date: new Date().toLocaleDateString('pl-PL')
-            };
-
-            let blList = JSON.parse(localStorage.getItem('jezowe_blacklist') || '[]');
-            blList.push(item);
-            localStorage.setItem('jezowe_blacklist', JSON.stringify(blList));
-
-            addLog('Blacklista', `Nałożono karę (${item.type}) na ${item.player}`);
-            
-            sendDiscordEmbed("Niewłaściwe zachowanie - Nowa Kara!", `**Gracz:** ${item.player}\n**Typ:** ${item.type}\n**Powód:** ${item.reason}\n**Nadający:** ${currentUser.nick}`, 15158332);
-
-            alert("Kara została pomyślnie zapisana!");
-            document.getElementById('blPlayer').value = '';
-            document.getElementById('blReason').value = '';
-            loadAllData();
-        }
-
-        // PODANIE NA ADMINA
-        function submitApplication(e) {
-            e.preventDefault();
-            const age = document.getElementById('appAge').value;
-            const hours = document.getElementById('appHours').value;
-            const text = document.getElementById('appText').value;
-
-            addLog('Podanie', `${currentUser.nick} złożył podanie na admina (Wiek: ${age}, Godziny: ${hours})`);
-            alert("Twoje podanie zostało wysłane pomyślnie!");
-            document.getElementById('appAge').value = '';
-            document.getElementById('appHours').value = '';
-            document.getElementById('appText').value = '';
-            loadAllData();
-        }
-
-        // GENERATOR OGŁOSZEŃ / DISCORD HOOK
-        function saveWebhookSettings() {
-            const url = document.getElementById('webhookUrl').value;
-            localStorage.setItem('jezowe_webhook', url);
-            alert("Webhook został zapisany w pamięci przeglądarki!");
-        }
-
-        async function sendDiscordEmbed(title, description, color = 6570480) {
-            const hookUrl = localStorage.getItem('jezowe_webhook') || document.getElementById('webhookUrl').value;
-            if(!hookUrl) return;
-
-            const payload = {
-                embeds: [{
-                    title: title,
-                    description: description,
-                    color: color,
-                    footer: { text: "Jeżowe RP — System Administracyjny" },
-                    timestamp: new Date().toISOString()
-                }]
-            };
-
-            try {
-                await fetch(hookUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-            } catch(e) {
-                console.error("Błąd Webhooka", e);
-            }
-        }
-
-        async function sendDiscordAnnouncement(e) {
-            e.preventDefault();
-            const title = document.getElementById('annTitle').value;
-            const content = document.getElementById('annContent').value;
-
-            await sendDiscordEmbed(`📢 ${title}`, content, 3447003);
-            addLog('Ogłoszenie Discord', `Wysłano: ${title}`);
-            alert("Ogłoszenie wysłane!");
-            document.getElementById('annTitle').value = '';
-            document.getElementById('annContent').value = '';
-            loadAllData();
-        }
-
-        // Auto wczytanie Webhooka z pamięci
-        document.getElementById('webhookUrl').value = localStorage.getItem('jezowe_webhook') || '';
+        });
     </script>
 </body>
 </html>
