@@ -287,7 +287,7 @@
                 <button type="submit" class="btn">Zaloguj się</button>
             </form>
 
-            <!-- FORMULARZ REJESTRACJI Z DOKŁADNIE TWOIMI RANGAMI -->
+            <!-- FORMULARZ REJESTRACJI -->
             <form id="registerForm" class="hidden" onsubmit="handleRegister(event)">
                 <div class="form-group">
                     <label>Nick (z Discorda / RP)</label>
@@ -546,10 +546,19 @@
     </div>
 
     <script>
-        // FIREBASE ENDPOINT CONFIG
-        const FIREBASE_DB = "https://jezowe-rp-default-rtdb.europe-west1.firebasedatabase.app/";
-
         let currentUser = null;
+
+        // Inicjalizacja domyślnego konta testowego, jeśli brak użytkowników
+        if (!localStorage.getItem('jezowe_users')) {
+            const defaultUsers = [{
+                nick: "Zaku",
+                discordId: "123456789012345678",
+                role: "👑 | Właściciel",
+                password: "password",
+                joinedAt: new Date().toLocaleDateString('pl-PL')
+            }];
+            localStorage.setItem('jezowe_users', JSON.stringify(defaultUsers));
+        }
 
         // AUTH SWITCH
         function switchAuthMode(mode) {
@@ -566,39 +575,26 @@
         }
 
         // LOGOWANIE
-        async function handleLogin(e) {
+        function handleLogin(e) {
             e.preventDefault();
             const nick = document.getElementById('loginNick').value.trim();
             const pass = document.getElementById('loginPassword').value.trim();
 
-            try {
-                const res = await fetch(`${FIREBASE_DB}/users.json`);
-                const data = await res.json();
-                
-                let found = null;
-                if(data) {
-                    Object.values(data).forEach(u => {
-                        if(u.nick.toLowerCase() === nick.toLowerCase() && u.password === pass) {
-                            found = u;
-                        }
-                    });
-                }
+            const users = JSON.parse(localStorage.getItem('jezowe_users') || '[]');
+            let found = users.find(u => u.nick.toLowerCase() === nick.toLowerCase() && u.password === pass);
 
-                if (found) {
-                    currentUser = found;
-                    initSession();
-                } else {
-                    alert("Błędny nick lub hasło!");
-                }
-            } catch(err) {
-                alert("Błąd połączenia z bazą!");
+            if (found) {
+                currentUser = found;
+                initSession();
+            } else {
+                alert("Błędny nick lub hasło! (Domyślne konto: Zaku / hasło: password)");
             }
         }
 
         // REJESTRACJA ADMINA
-        async function handleRegister(e) {
+        function handleRegister(e) {
             e.preventDefault();
-            const user = {
+            const newUser = {
                 nick: document.getElementById('regNick').value.trim(),
                 discordId: document.getElementById('regDiscordId').value.trim(),
                 role: document.getElementById('regRole').value,
@@ -606,20 +602,14 @@
                 joinedAt: new Date().toLocaleDateString('pl-PL')
             };
 
-            try {
-                await fetch(`${FIREBASE_DB}/users.json`, {
-                    method: 'POST',
-                    body: JSON.stringify(user)
-                });
+            let users = JSON.parse(localStorage.getItem('jezowe_users') || '[]');
+            users.push(newUser);
+            localStorage.setItem('jezowe_users', JSON.stringify(users));
 
-                // Zapisz log
-                addLog('Dołączenie do Ekipy', `Nowy admin: ${user.nick} (${user.role})`);
+            addLog('Dołączenie do Ekipy', `Nowy admin: ${newUser.nick} (${newUser.role})`);
 
-                alert("Konto utworzone pomyślnie! Możesz się teraz zalogować.");
-                switchAuthMode('login');
-            } catch(err) {
-                alert("Błąd zapisu do bazy danych.");
-            }
+            alert("Konto utworzone pomyślnie! Możesz się teraz zalogować.");
+            switchAuthMode('login');
         }
 
         function initSession() {
@@ -646,65 +636,58 @@
         }
 
         // LOGOWANIE ZDARZEŃ
-        async function addLog(type, desc) {
-            const log = {
+        function addLog(type, desc) {
+            const logs = JSON.parse(localStorage.getItem('jezowe_logs') || '[]');
+            logs.push({
                 time: new Date().toLocaleTimeString('pl-PL'),
                 type: type,
                 user: currentUser ? currentUser.nick : 'System',
                 desc: desc
-            };
-            await fetch(`${FIREBASE_DB}/logs.json`, { method: 'POST', body: JSON.stringify(log) });
+            });
+            localStorage.setItem('jezowe_logs', JSON.stringify(logs));
         }
 
         // ŁADOWANIE DANYCH
-        async function loadAllData() {
+        function loadAllData() {
             // Load Team
-            const teamRes = await fetch(`${FIREBASE_DB}/users.json`);
-            const teamData = await teamRes.json();
+            const users = JSON.parse(localStorage.getItem('jezowe_users') || '[]');
             const teamBody = document.getElementById('teamTableBody');
             teamBody.innerHTML = '';
-            let teamCount = 0;
-            if(teamData) {
-                Object.values(teamData).forEach(u => {
-                    teamCount++;
-                    teamBody.innerHTML += `<tr><td><b>${u.nick}</b></td><td><span class="badge badge-role">${u.role}</span></td><td>${u.discordId}</td><td>${u.joinedAt || 'Brak danych'}</td></tr>`;
-                });
-            }
-            document.getElementById('statTeam').innerText = teamCount;
+            users.forEach(u => {
+                teamBody.innerHTML += `<tr><td><b>${u.nick}</b></td><td><span class="badge badge-role">${u.role}</span></td><td>${u.discordId}</td><td>${u.joinedAt || 'Brak danych'}</td></tr>`;
+            });
+            document.getElementById('statTeam').innerText = users.length;
 
             // Load BL
-            const blRes = await fetch(`${FIREBASE_DB}/blacklist.json`);
-            const blData = await blRes.json();
+            const blList = JSON.parse(localStorage.getItem('jezowe_blacklist') || '[]');
             const blBody = document.getElementById('blTableBody');
             blBody.innerHTML = '';
-            let blCount = 0;
-            if(blData) {
-                Object.values(blData).forEach(b => {
-                    blCount++;
-                    blBody.innerHTML += `<tr><td><b>${b.player}</b></td><td><span class="badge badge-danger">${b.type}</span></td><td>${b.reason}</td><td>${b.author}</td><td>${b.date}</td></tr>`;
-                });
-            }
-            document.getElementById('statBL').innerText = blCount;
+            blList.forEach(b => {
+                blBody.innerHTML += `<tr><td><b>${b.player}</b></td><td><span class="badge badge-danger">${b.type}</span></td><td>${b.reason}</td><td>${b.author}</td><td>${b.date}</td></tr>`;
+            });
+            document.getElementById('statBL').innerText = blList.length;
 
             // Load Logs
-            const logsRes = await fetch(`${FIREBASE_DB}/logs.json`);
-            const logsData = await logsRes.json();
+            const logs = JSON.parse(localStorage.getItem('jezowe_logs') || '[]');
             const logsBody = document.getElementById('logsTableBody');
             const dashLogs = document.getElementById('dashLogsList');
             logsBody.innerHTML = '';
             dashLogs.innerHTML = '';
-            if(logsData) {
-                Object.values(logsData).reverse().forEach((l, index) => {
-                    logsBody.innerHTML += `<tr><td>${l.time}</td><td><span class="badge badge-warning">${l.type}</span></td><td>${l.user}</td><td>${l.desc}</td></tr>`;
-                    if(index < 5) {
-                        dashLogs.innerHTML += `<li style="margin-bottom:0.5rem; font-size:0.9rem;"><b>[${l.time}]</b> <span style="color:var(--accent);">${l.user}:</span> ${l.desc}</li>`;
-                    }
-                });
+            
+            const reversedLogs = [...logs].reverse();
+            reversedLogs.forEach((l, index) => {
+                logsBody.innerHTML += `<tr><td>${l.time}</td><td><span class="badge badge-warning">${l.type}</span></td><td>${l.user}</td><td>${l.desc}</td></tr>`;
+                if(index < 5) {
+                    dashLogs.innerHTML += `<li style="margin-bottom:0.5rem; font-size:0.9rem;"><b>[${l.time}]</b> <span style="color:var(--accent);">${l.user}:</span> ${l.desc}</li>`;
+                }
+            });
+            if(logs.length === 0) {
+                dashLogs.innerHTML = `<li style="color: var(--text-muted); font-size: 0.9rem;">Brak nowych zdarzeń...</li>`;
             }
         }
 
         // DODAWANIE BLACKLISTY
-        async function addBlacklist(e) {
+        function addBlacklist(e) {
             e.preventDefault();
             const item = {
                 player: document.getElementById('blPlayer').value,
@@ -714,13 +697,32 @@
                 date: new Date().toLocaleDateString('pl-PL')
             };
 
-            await fetch(`${FIREBASE_DB}/blacklist.json`, { method: 'POST', body: JSON.stringify(item) });
-            await addLog('Blacklista', `Nałożono karę (${item.type}) na ${item.player}`);
+            let blList = JSON.parse(localStorage.getItem('jezowe_blacklist') || '[]');
+            blList.push(item);
+            localStorage.setItem('jezowe_blacklist', JSON.stringify(blList));
+
+            addLog('Blacklista', `Nałożono karę (${item.type}) na ${item.player}`);
             
-            // Send Discord Hook
             sendDiscordEmbed("Niewłaściwe zachowanie - Nowa Kara!", `**Gracz:** ${item.player}\n**Typ:** ${item.type}\n**Powód:** ${item.reason}\n**Nadający:** ${currentUser.nick}`, 15158332);
 
-            alert("Wniosek/Kara została pomyślnie zapisana!");
+            alert("Kara została pomyślnie zapisana!");
+            document.getElementById('blPlayer').value = '';
+            document.getElementById('blReason').value = '';
+            loadAllData();
+        }
+
+        // PODANIE NA ADMINA
+        function submitApplication(e) {
+            e.preventDefault();
+            const age = document.getElementById('appAge').value;
+            const hours = document.getElementById('appHours').value;
+            const text = document.getElementById('appText').value;
+
+            addLog('Podanie', `${currentUser.nick} złożył podanie na admina (Wiek: ${age}, Godziny: ${hours})`);
+            alert("Twoje podanie zostało wysłane pomyślnie!");
+            document.getElementById('appAge').value = '';
+            document.getElementById('appHours').value = '';
+            document.getElementById('appText').value = '';
             loadAllData();
         }
 
@@ -762,8 +764,11 @@
             const content = document.getElementById('annContent').value;
 
             await sendDiscordEmbed(`📢 ${title}`, content, 3447003);
-            await addLog('Ogłoszenie Discord', `Wysłano: ${title}`);
+            addLog('Ogłoszenie Discord', `Wysłano: ${title}`);
             alert("Ogłoszenie wysłane!");
+            document.getElementById('annTitle').value = '';
+            document.getElementById('annContent').value = '';
+            loadAllData();
         }
 
         // Auto wczytanie Webhooka z pamięci
